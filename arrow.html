@@ -274,6 +274,18 @@
     }
     // This line fills the heatmap when the page loads
     fillCrowdSquare();
+
+    // This block uses the phone's compass sensor to rotate the arrow automatically
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener("deviceorientation", function(event) {
+        // This line gets the compass direction (alpha is the rotation around the z-axis)
+        let alpha = event.alpha;
+        if (typeof alpha === "number") {
+          // This line rotates the arrow to match the phone's direction
+          document.getElementById("arrow").style.transform = `rotate(${alpha}deg)`;
+        }
+      }, true);
+    }
   </script>
 </body>
 </html>
