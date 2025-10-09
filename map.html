@@ -32,7 +32,6 @@
       font-weight: 700;
     }
 
-    /* Map container */
     .map-area {
       width: 100%;
       aspect-ratio: 740 / 480;
@@ -45,7 +44,6 @@
       margin-bottom: 20px;
     }
 
-    /* Map squares */
     .map-square {
       position: absolute;
       display: flex;
@@ -63,7 +61,7 @@
       cursor: pointer;
       text-align: center;
       transition: all 0.2s ease;
-      min-width: 50px; /* prevent too small on mobile */
+      min-width: 50px;
     }
 
     .map-square:hover {
@@ -80,15 +78,12 @@
 
     .map-icon { margin-right: 0.2rem; font-size: 1rem; }
 
-    /* Responsive positions in percentages */
-    #entrance1 { bottom: 4%; left: 9%; }
-    #entrance2 { bottom: 4%; right: 9%; }
+    /* Updated positions */
+    #entrance1 { bottom: 4%; left: 9%; } /* renamed Entrance/Exit */
     #stage { top: 12%; left: 50%; transform: translateX(-50%); width: 16%; height: 14%; }
     #bar1 { top: 37%; left: 15%; }
-    #bar2 { top: 42%; left: 43%; }
-    #bar3 { top: 37%; right: 15%; }
-    #foodtruck { bottom: 25%; right: 20%; }
-    #exit { bottom: 8%; left: 50%; transform: translateX(-50%); }
+    #bar2 { top: 37%; right: 15%; } /* renamed Bar3 → Bar2 */
+    #foodtruck { bottom: 30%; right: 15%; } /* moved up and to the right */
 
     .next-btn {
       margin-top: 12px;
@@ -107,7 +102,6 @@
     .next-btn:hover { background: #1565c0; box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
     .next-btn:disabled { background: #a0c4ff; cursor: not-allowed; }
 
-    /* ------------------ Mobile Adjustments ------------------ */
     @media (max-width: 480px) {
       .map-title { font-size: 1.8rem; margin-bottom: 12px; }
       .map-square {
@@ -125,11 +119,8 @@
   <div class="map-page">
     <h1 class="map-title">Select where you want to go on the festival map</h1>
     <div class="map-area">
-      <div class="map-square" data-location="Entrance 1" data-value="1" id="entrance1">
-        <i class="fa-solid fa-door-open map-icon"></i><span>Entrance 1</span>
-      </div>
-      <div class="map-square" data-location="Entrance 2" data-value="2" id="entrance2">
-        <i class="fa-solid fa-door-open map-icon"></i><span>Entrance 2</span>
+      <div class="map-square" data-location="Entrance/Exit" data-value="1" id="entrance1">
+        <i class="fa-solid fa-door-open map-icon"></i><span>Entrance/Exit</span>
       </div>
       <div class="map-square" data-location="Stage" data-value="3" id="stage">
         <i class="fa-solid fa-music map-icon"></i><span>Stage</span>
@@ -137,17 +128,11 @@
       <div class="map-square" data-location="Bar 1" data-value="4" id="bar1">
         <i class="fa-solid fa-beer-mug-empty map-icon"></i><span>Bar 1</span>
       </div>
-      <div class="map-square" data-location="Bar 2" data-value="5" id="bar2">
+      <div class="map-square" data-location="Bar 2" data-value="6" id="bar2">
         <i class="fa-solid fa-beer-mug-empty map-icon"></i><span>Bar 2</span>
-      </div>
-      <div class="map-square" data-location="Bar 3" data-value="6" id="bar3">
-        <i class="fa-solid fa-beer-mug-empty map-icon"></i><span>Bar 3</span>
       </div>
       <div class="map-square" data-location="Foodtruck" data-value="7" id="foodtruck">
         <i class="fa-solid fa-hotdog map-icon"></i><span>Foodtruck</span>
-      </div>
-      <div class="map-square" data-location="Exit" data-value="8" id="exit">
-        <i class="fa-solid fa-arrow-right-to-bracket map-icon"></i><span>Exit</span>
       </div>
     </div>
     <button class="next-btn" id="nextButton" disabled>Let's walk</button>
