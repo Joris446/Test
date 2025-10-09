@@ -1,6 +1,6 @@
 /* This block sets up the whole page with a blue gradient background and centers everything */
 body {
-  margin: 0;
+  margin: 10;
   height: 100vh;
   display: flex;
   justify-content: center;
@@ -108,3 +108,4 @@ body {
     border-radius: 8px;
   }
 }
+
