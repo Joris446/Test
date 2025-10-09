@@ -24,15 +24,22 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* Map container */
+/* Map wrapper for scaling */
+.map-wrapper {
+  width: 740px;      /* original desktop width */
+  height: 480px;     /* original desktop height */
+  transform-origin: top center; /* scale from top center */
+  position: relative;
+}
+
+/* Map area inside the wrapper */
 .map-area {
   position: relative;
-  width: 740px;
-  height: 480px;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(135deg, #e3f2fd 60%, #bbdefb 100%);
   border-radius: 28px;
   box-shadow: 0 2px 18px rgba(0,0,0,0.09);
-  margin-bottom: 40px;
   overflow: hidden;
   border: 1px solid #e0ecff;
 }
@@ -64,7 +71,7 @@ body {
 
 .map-icon { font-size: 1.3rem; margin-right: 6px; color: inherit; vertical-align: middle; }
 
-/* Absolute positions of map buttons */
+/* Absolute positions of map buttons (desktop) */
 #entrance1 { bottom: 18px; left: 70px; }
 #entrance2 { bottom: 18px; right: 70px; }
 #stage { top: 60px; left: 50%; transform: translateX(-50%); min-width: 140px; height: 70px; }
@@ -94,11 +101,11 @@ body {
 
 /* ================= MOBILE SHRINK ================= */
 @media (max-width: 600px) {
-  .map-area {
-    width: 90vw;         /* shrink width to 90% of screen */
-    height: calc(90vw * 480 / 740); /* scale height proportionally */
+  .map-wrapper {
+    transform: scale(0.8); /* shrink entire map including buttons */
+    height: calc(480px * 0.8); /* adjust height to scale */
   }
-
+  
   .map-title { font-size: 2rem; margin-bottom: 20px; }
   .next-btn { padding: 12px 28px; font-size: 1rem; border-radius: 10px; }
 }
