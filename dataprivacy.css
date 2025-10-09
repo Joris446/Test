@@ -15,20 +15,23 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 0 12px; /* ensure space on small screens */
+  box-sizing: border-box;
 }
 
 /* Title above the privacy box */
 .transition-title {
-  font-size: 3rem;
+  font-size: 2.5rem; /* reduced from 3rem */
   color: #0044aa;
   margin-bottom: 40px;
   text-align: center;
+  line-height: 1.2;
 }
 
 /* Privacy message box */
 .privacy-block {
   width: 540px; /* default for large screens */
-  max-width: 90vw; /* never exceed screen width */
+  max-width: 90vw;
   min-height: 90px;
   background: linear-gradient(135deg, #e3f2fd 60%, #bbdefb 100%);
   border-radius: 22px;
@@ -36,16 +39,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.15em;
+  font-size: 1rem; /* slightly smaller */
   color: #1976d2;
   font-weight: 500;
   letter-spacing: 0.01em;
-  padding: 28px 26px; /* vertical | horizontal padding */
+  padding: 24px 20px; /* slightly smaller padding */
   border: 1px solid #e0ecff;
   margin-bottom: 40px;
-  transition: box-shadow 0.3s;
-  text-align: center; /* center text */
-  box-sizing: border-box; /* include padding in width */
+  text-align: center;
+  box-sizing: border-box;
 }
 
 /* Shadow effect on hover */
@@ -57,8 +59,8 @@ body {
 .privacy-block p {
   margin: 0;
   color: #1976d2;
-  font-size: 1.15em;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 /* Important text bold */
@@ -69,8 +71,8 @@ body {
 
 /* "Got it" button */
 .next-btn {
-  padding: 15px 30px;
-  font-size: 1.2rem;
+  padding: 14px 28px;
+  font-size: 1rem;
   border: none;
   border-radius: 10px;
   background: #0077ff;
@@ -86,27 +88,27 @@ body {
 /* ================= MOBILE OPTIMIZATION ================= */
 @media (max-width: 600px) {
   .transition-title {
-    font-size: 2.2rem;
-    margin-bottom: 24px;
+    font-size: 1.8rem;  /* smaller on phones */
+    margin-bottom: 20px;
   }
 
   .privacy-block {
-    width: 90vw;       /* fit screen */
-    max-width: 400px;  /* prevent too wide */
-    min-height: 80px;
-    padding: 16px 20px; /* more horizontal space, less vertical */
+    width: 90vw;
+    max-width: 380px;
+    min-height: 70px;
+    padding: 14px 16px; /* extra horizontal space */
+    font-size: 0.95rem;
     border-radius: 18px;
-    font-size: 1rem;   /* slightly smaller text */
   }
 
   .privacy-block p {
-    font-size: 0.95rem; /* smaller text */
+    font-size: 0.9rem;
     line-height: 1.4;
   }
 
   .next-btn {
-    padding: 12px 24px;
-    font-size: 1rem;
+    padding: 10px 20px;
+    font-size: 0.95rem;
     border-radius: 8px;
   }
 }
