@@ -1,81 +1,178 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <!-- This block sets up the page and loads the styles -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Festival Map</title>
+  <!-- Font Awesome icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Map CSS -->
   <link rel="stylesheet" href="map.css">
+  <style>
+    /* ------------------- General Styling ------------------- */
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #dff6ff, #b5d9ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .map-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 95vw;
+      max-width: 800px;
+    }
+
+    .map-title {
+      font-size: 2.5rem;
+      color: #0044aa;
+      margin-bottom: 24px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    /* ------------------- Map Container ------------------- */
+    .map-area {
+      width: 100%;
+      aspect-ratio: 740 / 480;
+      background: linear-gradient(135deg, #e3f2fd 60%, #bbdefb 100%);
+      border-radius: 28px;
+      box-shadow: 0 2px 18px rgba(0,0,0,0.09);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #e0ecff;
+      margin-bottom: 20px;
+    }
+
+    /* ------------------- Map Squares ------------------- */
+    .map-square {
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 600;
+      color: #0044aa;
+      border-radius: 16px;
+      background: #e0ecff;
+      border: 1px solid #c9dfff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      gap: 0.5rem;
+      padding: 0.2rem 0.5rem;
+      font-size: clamp(0.8rem, 1vw, 1rem);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .map-square:hover {
+      background: #c9dfff;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+    }
+
+    .map-square.selected {
+      background: #1976d2;
+      color: white;
+      box-shadow: 0 4px 18px rgba(25,118,210,0.15);
+      border: 1.5px solid #1976d2;
+    }
+
+    .map-icon {
+      margin-right: 0.3rem;
+    }
+
+    /* ------------------- Responsive Positions (percentages) ------------------- */
+    #entrance1 { bottom: 4%; left: 9.5%; }
+    #entrance2 { bottom: 4%; right: 9.5%; }
+    #stage { top: 12.5%; left: 50%; transform: translateX(-50%); width: 18%; height: 14.5%; }
+    #bar1 { top: 37.5%; left: 15%; }
+    #bar2 { top: 41.7%; left: 43.2%; }
+    #bar3 { top: 37.5%; right: 15%; }
+    #foodtruck { bottom: 25%; right: 21.1%; }
+    #exit { bottom: 7.9%; left: 50%; transform: translateX(-50%); }
+
+    /* ------------------- Next Button ------------------- */
+    .next-btn {
+      margin-top: 12px;
+      padding: 12px 28px;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: none;
+      background: #1976d2;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      transition: all 0.2s ease;
+    }
+
+    .next-btn:hover { background: #1565c0; box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
+    .next-btn:disabled { background: #a0c4ff; cursor: not-allowed; }
+
+    /* ------------------- Mobile Adjustments ------------------- */
+    @media (max-width: 600px) {
+      .map-title { font-size: 2rem; margin-bottom: 16px; }
+      .next-btn { padding: 10px 22px; font-size: 0.9rem; }
+    }
+  </style>
 </head>
 <body>
   <div class="map-page">
     <h1 class="map-title">Select where you want to go on the festival map</h1>
     <div class="map-area">
-      <!-- Here the code creates the navigation squares for each location -->
+      <!-- Navigation squares -->
       <div class="map-square" data-location="Entrance 1" data-value="1" id="entrance1">
-        <i class="fa-solid fa-door-open map-icon"></i>
-        <span>Entrance 1</span>
+        <i class="fa-solid fa-door-open map-icon"></i><span>Entrance 1</span>
       </div>
       <div class="map-square" data-location="Entrance 2" data-value="2" id="entrance2">
-        <i class="fa-solid fa-door-open map-icon"></i>
-        <span>Entrance 2</span>
+        <i class="fa-solid fa-door-open map-icon"></i><span>Entrance 2</span>
       </div>
       <div class="map-square" data-location="Stage" data-value="3" id="stage">
-        <i class="fa-solid fa-music map-icon"></i>
-        <span>Stage</span>
+        <i class="fa-solid fa-music map-icon"></i><span>Stage</span>
       </div>
       <div class="map-square" data-location="Bar 1" data-value="4" id="bar1">
-        <i class="fa-solid fa-beer-mug-empty map-icon"></i>
-        <span>Bar 1</span>
+        <i class="fa-solid fa-beer-mug-empty map-icon"></i><span>Bar 1</span>
       </div>
       <div class="map-square" data-location="Bar 2" data-value="5" id="bar2">
-        <i class="fa-solid fa-beer-mug-empty map-icon"></i>
-        <span>Bar 2</span>
+        <i class="fa-solid fa-beer-mug-empty map-icon"></i><span>Bar 2</span>
       </div>
       <div class="map-square" data-location="Bar 3" data-value="6" id="bar3">
-        <i class="fa-solid fa-beer-mug-empty map-icon"></i>
-        <span>Bar 3</span>
+        <i class="fa-solid fa-beer-mug-empty map-icon"></i><span>Bar 3</span>
       </div>
       <div class="map-square" data-location="Foodtruck" data-value="7" id="foodtruck">
-        <i class="fa-solid fa-hotdog map-icon"></i>
-        <span>Foodtruck</span>
+        <i class="fa-solid fa-hotdog map-icon"></i><span>Foodtruck</span>
       </div>
       <div class="map-square" data-location="Exit" data-value="8" id="exit">
-        <i class="fa-solid fa-arrow-right-to-bracket map-icon"></i>
-        <span>Exit</span>
+        <i class="fa-solid fa-arrow-right-to-bracket map-icon"></i><span>Exit</span>
       </div>
     </div>
-    <!-- This button lets the user continue after choosing a location -->
     <button class="next-btn" id="nextButton" disabled>Let's walk</button>
   </div>
-  <!-- This line loads the icons for the map squares -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <script>
-    // This block gets all the location squares and the button
     const squares = document.querySelectorAll('.map-square');
     const nextButton = document.getElementById('nextButton');
     let selectedSquare = null;
 
-    // This block makes sure only one square is selected at a time
     squares.forEach(square => {
       square.addEventListener('click', () => {
-        // This line removes the highlight from the previously selected square
         if (selectedSquare) {
           selectedSquare.classList.remove('selected');
         }
         square.classList.add('selected');
         selectedSquare = square;
-        // This block saves the chosen location in the browser's memory
-        const locationName = square.dataset.location;
-        const locationValue = square.dataset.value;
-        localStorage.setItem('selectedLocationName', locationName);
-        localStorage.setItem('selectedLocationValue', locationValue);
-        // This line enables the button so the user can continue
+
+        localStorage.setItem('selectedLocationName', square.dataset.location);
+        localStorage.setItem('selectedLocationValue', square.dataset.value);
+
         nextButton.disabled = false;
       });
     });
 
-    // This block sends the user to the arrow page when the button is clicked
     nextButton.addEventListener('click', () => {
       if (selectedSquare) {
         window.location.href = 'arrow.html';
