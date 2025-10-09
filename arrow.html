@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pijl Rotatie Demo</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* Sets the background and font for the whole page */
+    body {
+      background: linear-gradient(135deg, #dff6ff, #b5d9ff);
+      font-family: Arial, sans-serif;
+    }
+    /* This block centers everything in the container */
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 40px;
+    }
+    /* This block styles the title above the arrow */
+    #arrow-title {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      color: #0044aa;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      text-align: center;
+    }
+    /* This block creates the circular area for the arrow */
+    #arrow-container {
+      width: 300px;
+      height: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #e3f2fd 60%, #bbdefb 100%);
+      border-radius: 50%;
+      box-shadow: 0 2px 18px rgba(0, 0, 0, 0.09);
+      border: 1px solid #e0ecff;
+      margin-bottom: 32px;
+    }
+    /* This block sets the size and animation for the arrow SVG */
+    #arrow {
+      width: 220px;
+      height: 220px;
+      transition: transform 1.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-origin: 50% 50%;
+      display: block;
+    }
+    /* This block colors and outlines the arrow shape */
+    #arrow-shape {
+      fill: #1976d2;
+      stroke: #0d47a1;
+      stroke-width: 2;
+    }
+    /* This block arranges the crowd square and text box next to each other */
+    .info-row {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 32px;
+      margin-top: 0;
+    }
+    /* This block creates the square for the heatmap */
+    #crowd-square {
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(135deg, #e3f2fd 60%, #bbdefb 100%);
+      border-radius: 22px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      border: 1px solid #e0ecff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      padding: 0;
+    }
+    /* This block creates a grid for the colored squares inside the heatmap */
+    #crowd-blobs {
+      width: 78px;
+      height: 78px;
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(9, 1fr);
+      gap: 1px; /* minimal gap for "clicking" squares */
+    }
+    /* This block styles each small colored square in the heatmap */
+    .crowd-blob {
+      width: 7px;
+      height: 7px;
+      border-radius: 3px;
+      /* More rounded for visual appeal */
+    }
+    /* This block styles the text box with the route message */
+    #route-saying {
+      width: 340px;
+      min-height: 70px;
+      background: linear-gradient(135deg, #e3f2fd 60%, #bbdefb 100%);
+      border-radius: 22px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15em;
+      color: #1976d2;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      padding: 22px 24px;
+      border: 1px solid #e0ecff;
+      transition: box-shadow 0.3s;
+    }
+    #route-saying:hover {
+      box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+    }
+    /* This block arranges the heatmap and label vertically */
+    .crowd-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
+    }
+    /* This block styles the word "Heatmap" under the square */
+    #heatmap-label {
+      margin-top: 2px; /* Smaller gap */
+      font-size: 1.08rem;
+      color: #1976d2;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      min-width: 70px;
+      text-align: center;
+      background: none;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0;
+    }
+    /* This block aligns the top of the heatmap square with the top of the text box */
+    .info-row {
+      align-items: flex-start;
+    }
+    /* This block makes the layout responsive for small screens */
+    @media (max-width: 900px) {
+      .info-row {
+        flex-direction: column;
+        gap: 24px;
+      }
+      #crowd-square, #route-saying {
+        width: 90vw;
+        min-width: 180px;
+        max-width: 340px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- This block shows the title above the arrow -->
+    <h1 id="arrow-title">Walk into the direction of the arrow</h1>
+    <!-- This block creates the circular area for the navigation arrow -->
+    <div id="arrow-container">
+      <svg id="arrow" viewBox="0 0 120 120">
+        <!-- Here the code creates the navigation arrow -->
+        <polygon id="arrow-shape" points="60,15 100,100 60,75 20,100"/>
+      </svg>
+    </div>
+    <!-- This block arranges the heatmap and the route message side by side -->
+    <div class="info-row">
+      <div class="crowd-column">
+        <!-- This block creates the square for the heatmap -->
+        <div id="crowd-square">
+          <!-- This block will be filled with colored squares (heatmap) -->
+          <div id="crowd-blobs"></div>
+        </div>
+        <!-- This block shows the word "Heatmap" under the square -->
+        <div id="heatmap-label">Heatmap</div>
+      </div>
+      <!-- This block shows the route message in a styled box -->
+      <div id="route-saying"></div>
+    </div>
+  </div>
+  <script>
+    // This block declares the possible route messages
+    const sayings = [
+      "We picked this route because it avoids the busiest areas.",
+      "This way keeps you out of the densest parts of the crowd.",
+      "Get there faster with a route that’s 30% less crowded.",
+      "Move more easily, this route is short and is 15% less crowded.",
+      "Save time with a path that cuts through 40% less congestion."
+    ];
+    // This block picks a random route message and shows it in the text box
+    function setRandomSaying() {
+      const idx = Math.floor(Math.random() * sayings.length);
+      document.getElementById("route-saying").textContent = sayings[idx];
+    }
+    setRandomSaying();
+
+    // This block handles keyboard input for rotating the arrow and ending the route
+    let inputBuffer = "";
+    document.addEventListener("keydown", (event) => {
+      // This block collects number keys for the angle
+      if (/^[0-9]$/.test(event.key)) {
+        inputBuffer += event.key;
+      }
+      // This block removes the last digit if backspace is pressed
+      if (event.key === "Backspace") {
+        inputBuffer = inputBuffer.slice(0, -1);
+      }
+      // This block rotates the arrow when Enter is pressed
+      if (event.key === "Enter" && inputBuffer.length > 0) {
+        const angle = parseFloat(inputBuffer);
+        if (!isNaN(angle)) {
+          rotateArrow(angle);
+        }
+        inputBuffer = "";
+      }
+      // This block makes sure that pressing spacebar goes to the ending page
+      if (event.code === "Space") {
+        window.location.href = "ending.html";
+      }
+    });
+    // This function rotates the arrow to the given angle
+    function rotateArrow(angle) {
+      const arrow = document.getElementById("arrow");
+      arrow.style.transform = `rotate(${angle}deg)`;
+    }
+
+    // This function picks the color for each small square in the heatmap
+    function getCrowdColor(row, col, colorArray) {
+      // First 3 rows are always red
+      if (row < 3) return "#ff5252";
+      // For other rows, use the precomputed color array
+      return colorArray[row - 3][col];
+    }
+
+    // This function fills the heatmap square with colored squares
+    function fillCrowdSquare() {
+      const container = document.getElementById("crowd-blobs");
+      container.innerHTML = "";
+
+      // This block prepares the color distribution for the lower 6 rows
+      const rows = 6, cols = 9;
+      const colorArray = [];
+      for (let row = 0; row < rows; row++) {
+        // 40% red, 40% yellow, 20% green per row (4 red, 4 yellow, 1 green for 9 squares)
+        let colors = [
+          ...Array(4).fill("#ff5252"),   // 4 red
+          ...Array(4).fill("#ffb74d"),   // 4 yellow
+          ...Array(1).fill("#66bb6a")    // 1 green
+        ];
+        // Shuffle colors for randomness
+        for (let i = colors.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [colors[i], colors[j]] = [colors[j], colors[i]];
+        }
+        colorArray.push(colors);
+      }
+
+      // This block creates all 81 small squares in the heatmap
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 9; col++) {
+          const blob = document.createElement("div");
+          blob.className = "crowd-blob";
+          blob.style.background = row < 3
+            ? "#ff5252"
+            : getCrowdColor(row, col, colorArray);
+          container.appendChild(blob);
+        }
+      }
+    }
+    // This line fills the heatmap when the page loads
+    fillCrowdSquare();
+  </script>
+</body>
+</html>

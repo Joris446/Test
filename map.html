@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <!-- This block sets up the page and loads the styles -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Festival Map</title>
+  <link rel="stylesheet" href="map.css">
+</head>
+<body>
+  <div class="map-page">
+    <h1 class="map-title">Select where you want to go on the festival map</h1>
+    <div class="map-area">
+      <!-- Here the code creates the navigation squares for each location -->
+      <div class="map-square" data-location="Entrance 1" data-value="1" id="entrance1">
+        <i class="fa-solid fa-door-open map-icon"></i>
+        <span>Entrance 1</span>
+      </div>
+      <div class="map-square" data-location="Entrance 2" data-value="2" id="entrance2">
+        <i class="fa-solid fa-door-open map-icon"></i>
+        <span>Entrance 2</span>
+      </div>
+      <div class="map-square" data-location="Stage" data-value="3" id="stage">
+        <i class="fa-solid fa-music map-icon"></i>
+        <span>Stage</span>
+      </div>
+      <div class="map-square" data-location="Bar 1" data-value="4" id="bar1">
+        <i class="fa-solid fa-beer-mug-empty map-icon"></i>
+        <span>Bar 1</span>
+      </div>
+      <div class="map-square" data-location="Bar 2" data-value="5" id="bar2">
+        <i class="fa-solid fa-beer-mug-empty map-icon"></i>
+        <span>Bar 2</span>
+      </div>
+      <div class="map-square" data-location="Bar 3" data-value="6" id="bar3">
+        <i class="fa-solid fa-beer-mug-empty map-icon"></i>
+        <span>Bar 3</span>
+      </div>
+      <div class="map-square" data-location="Foodtruck" data-value="7" id="foodtruck">
+        <i class="fa-solid fa-hotdog map-icon"></i>
+        <span>Foodtruck</span>
+      </div>
+      <div class="map-square" data-location="Exit" data-value="8" id="exit">
+        <i class="fa-solid fa-arrow-right-to-bracket map-icon"></i>
+        <span>Exit</span>
+      </div>
+    </div>
+    <!-- This button lets the user continue after choosing a location -->
+    <button class="next-btn" id="nextButton" disabled>Let's walk</button>
+  </div>
+  <!-- This line loads the icons for the map squares -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script>
+    // This block gets all the location squares and the button
+    const squares = document.querySelectorAll('.map-square');
+    const nextButton = document.getElementById('nextButton');
+    let selectedSquare = null;
+
+    // This block makes sure only one square is selected at a time
+    squares.forEach(square => {
+      square.addEventListener('click', () => {
+        // This line removes the highlight from the previously selected square
+        if (selectedSquare) {
+          selectedSquare.classList.remove('selected');
+        }
+        square.classList.add('selected');
+        selectedSquare = square;
+        // This block saves the chosen location in the browser's memory
+        const locationName = square.dataset.location;
+        const locationValue = square.dataset.value;
+        localStorage.setItem('selectedLocationName', locationName);
+        localStorage.setItem('selectedLocationValue', locationValue);
+        // This line enables the button so the user can continue
+        nextButton.disabled = false;
+      });
+    });
+
+    // This block sends the user to the arrow page when the button is clicked
+    nextButton.addEventListener('click', () => {
+      if (selectedSquare) {
+        window.location.href = 'arrow.html';
+      }
+    });
+  </script>
+</body>
+</html>
