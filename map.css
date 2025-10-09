@@ -1,45 +1,38 @@
-/* General page styling */
+/* General styling */
 body {
   margin: 0;
-  height: 100vh;
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #dff6ff, #b5d9ff);
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #dff6ff, #b5d9ff);
-  font-family: 'Arial', sans-serif;
+  min-height: 100vh;
 }
 
 .map-page {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 95vw;
+  max-width: 800px;
 }
 
 .map-title {
   font-size: 2.5rem;
   color: #0044aa;
-  margin-bottom: 38px;
+  margin-bottom: 24px;
   text-align: center;
   font-weight: 700;
-  letter-spacing: 0.01em;
 }
 
-/* Map wrapper for scaling */
-.map-wrapper {
-  width: 740px;      /* original desktop width */
-  height: 480px;     /* original desktop height */
-  transform-origin: top center; /* scale from top center */
-  position: relative;
-}
-
-/* Map area inside the wrapper */
+/* Map container */
 .map-area {
-  position: relative;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 740 / 480; /* preserve desktop aspect ratio */
   background: linear-gradient(135deg, #e3f2fd 60%, #bbdefb 100%);
   border-radius: 28px;
   box-shadow: 0 2px 18px rgba(0,0,0,0.09);
+  position: relative;
   overflow: hidden;
   border: 1px solid #e0ecff;
 }
@@ -47,65 +40,57 @@ body {
 /* Map squares */
 .map-square {
   position: absolute;
-  min-width: 110px;
-  height: 62px;
-  background: #e0ecff;
-  border-radius: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #0044aa;
   font-weight: 600;
-  font-size: 1.08rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(.4,.2,.2,1);
-  user-select: none;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  color: #0044aa;
+  border-radius: 16px;
+  background: #e0ecff;
   border: 1px solid #c9dfff;
-  gap: 10px;
-  padding: 0 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  gap: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  font-size: clamp(0.8rem, 1vw, 1rem); /* scales font on phones */
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .map-square:hover { background: #c9dfff; box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
 .map-square.selected { background: #1976d2; color: white; box-shadow: 0 4px 18px rgba(25,118,210,0.15); border: 1.5px solid #1976d2; }
 
-.map-icon { font-size: 1.3rem; margin-right: 6px; color: inherit; vertical-align: middle; }
+.map-icon { margin-right: 0.3rem; }
 
-/* Absolute positions of map buttons (desktop) */
-#entrance1 { bottom: 18px; left: 70px; }
-#entrance2 { bottom: 18px; right: 70px; }
-#stage { top: 60px; left: 50%; transform: translateX(-50%); min-width: 140px; height: 70px; }
-#bar1 { top: 180px; left: 110px; }
-#bar2 { top: 200px; left: 320px; }
-#bar3 { top: 180px; right: 110px; }
-#foodtruck { bottom: 120px; right: 160px; }
-#exit { bottom: 38px; left: 50%; transform: translateX(-50%); }
+/* Positions using percentages */
+#entrance1 { bottom: 3.75%; left: 9.5%; }
+#entrance2 { bottom: 3.75%; right: 9.5%; }
+#stage { top: 12.5%; left: 50%; transform: translateX(-50%); width: 18%; height: 14.5%; }
+#bar1 { top: 37.5%; left: 15%; }
+#bar2 { top: 41.7%; left: 43.2%; }
+#bar3 { top: 37.5%; right: 15%; }
+#foodtruck { bottom: 25%; right: 21.1%; }
+#exit { bottom: 7.9%; left: 50%; transform: translateX(-50%); }
 
 /* Next button */
 .next-btn {
-  padding: 15px 40px;
-  font-size: 1.2rem;
+  margin-top: 12px;
+  padding: 12px 28px;
+  font-size: 1rem;
+  border-radius: 10px;
   border: none;
-  border-radius: 12px;
   background: #1976d2;
   color: white;
   cursor: pointer;
-  transition: background 0.3s, box-shadow 0.3s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   font-weight: 600;
-  margin-top: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  transition: all 0.2s ease;
 }
 
 .next-btn:hover { background: #1565c0; box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
 .next-btn:disabled { background: #a0c4ff; cursor: not-allowed; }
 
-/* ================= MOBILE SHRINK ================= */
+/* Responsive adjustments */
 @media (max-width: 600px) {
-  .map-wrapper {
-    transform: scale(0.8); /* shrink entire map including buttons */
-    height: calc(480px * 0.8); /* adjust height to scale */
-  }
-  
-  .map-title { font-size: 2rem; margin-bottom: 20px; }
-  .next-btn { padding: 12px 28px; font-size: 1rem; border-radius: 10px; }
+  .map-title { font-size: 2rem; margin-bottom: 16px; }
+  .next-btn { padding: 10px 22px; font-size: 0.9rem; }
 }
