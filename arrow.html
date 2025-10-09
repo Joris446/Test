@@ -5,14 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Direction Challenge</title>
 <style>
-/* ================= GENERAL STYLING ================= */
+/* ================= GENERAL ================= */
 body {
   margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, #dff6ff, #b5d9ff);
+  padding: 0;
+  background: linear-gradient(135deg,#dff6ff,#b5d9ff);
   font-family: Arial, sans-serif;
   text-align: center;
 }
@@ -21,187 +18,132 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 40px;
+  margin-top: 30px;
 }
 
-/* Title styling */
+/* ================= TITLE ================= */
 #arrow-title {
-  font-size: 2.2rem; /* smaller on phones, matches previous page */
+  font-size: 2.2rem; /* smaller for mobile */
   color: #0044aa;
   font-weight: 700;
   margin-bottom: 20px;
 }
 
-/* Compass enable button */
-#enable-compass {
-  background: #1976d2;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 24px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,.15);
-  margin-bottom: 20px;
-  transition: all .2s ease-in-out;
-}
-#enable-compass:hover {
-  background: #0d47a1;
-  box-shadow: 0 6px 12px rgba(0,0,0,.2);
-}
-
-/* Arrow container */
+/* ================= ARROW ================= */
 #arrow-container {
-  width: 250px;  /* slightly smaller on all screens */
+  width: 250px;
   height: 250px;
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg,#e3f2fd 60%,#bbdefb 100%);
   border-radius: 50%;
-  box-shadow: 0 2px 18px rgba(0,0,0,.09);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
   border: 1px solid #e0ecff;
   margin-bottom: 24px;
   overflow: hidden;
 }
 
-/* Arrow */
 #arrow {
   width: 180px;
   height: 180px;
   transform-origin: 50% 50%;
 }
 
-/* Arrow shape */
 #arrow-shape {
   fill: #1976d2;
   stroke: #0d47a1;
   stroke-width: 2;
 }
 
-/* Status text */
-#status-text {
-  font-size: 1.15rem;
-  color: #1976d2;
-  font-weight: 600;
-  margin-bottom: 24px;
-}
-
-/* Info row: heatmap + route */
+/* ================= INFO ROW ================= */
 .info-row {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  gap: 32px;
-  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
 }
 
-/* Crowd heatmap square */
+/* Heatmap box */
 #crowd-square {
-  width: 90px;
-  height: 90px;
+  width: 80px;
+  height: 80px;
   background: linear-gradient(135deg,#e3f2fd 60%,#bbdefb 100%);
-  border-radius: 22px;
-  box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
   border: 1px solid #e0ecff;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 4px;
 }
+
 #crowd-blobs {
-  width: 78px;
-  height: 78px;
+  width: 72px;
+  height: 72px;
   display: grid;
   grid-template-columns: repeat(9,1fr);
   grid-template-rows: repeat(9,1fr);
   gap: 1px;
 }
+
 .crowd-blob {
   width: 7px;
   height: 7px;
-  border-radius: 3px;
+  border-radius: 50%;
 }
 
-/* Route message */
+/* Route speed text */
 #route-saying {
-  width: 340px;
-  min-height: 70px;
+  max-width: 220px;
+  font-size: 1rem;
+  color: #1976d2;
+  font-weight: 500;
   background: linear-gradient(135deg,#e3f2fd 60%,#bbdefb 100%);
-  border-radius: 22px;
-  box-shadow: 0 2px 12px rgba(0,0,0,.07);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  border: 1px solid #e0ecff;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.15em;
-  color: #1976d2;
-  font-weight: 500;
-  padding: 22px 24px;
-  border: 1px solid #e0ecff;
   text-align: center;
 }
 
-/* Heatmap label */
-#heatmap-label {
-  color: #1976d2;
-  font-weight: 600;
-  margin-top: 4px;
-  font-size: 1rem;
-}
-
-/* ================= MOBILE OPTIMIZATION ================= */
-@media(max-width:900px){
-  .info-row {
-    flex-direction: column;
-    gap: 24px;
-  }
-  #crowd-square, #route-saying {
-    width: 90vw;
-    min-width: 180px;
-    max-width: 340px;
-  }
-  #arrow-container {
-    width: 200px;
-    height: 200px;
-    margin-bottom: 20px;
-  }
-  #arrow {
-    width: 150px;
-    height: 150px;
-  }
-  #arrow-title {
-    font-size: 2.2rem;
-    margin-bottom: 16px;
-  }
-  #status-text {
-    font-size: 1.05rem;
-    margin-bottom: 16px;
-  }
+/* ================= MOBILE ================= */
+@media (max-width: 600px) {
+  #arrow-title { font-size: 1.8rem; margin-bottom: 16px; }
+  #arrow-container { width: 200px; height: 200px; margin-bottom: 20px; }
+  #arrow { width: 150px; height: 150px; }
+  .info-row { flex-direction: row; gap: 12px; }
+  #crowd-square { width: 60px; height: 60px; }
+  #crowd-blobs { width: 54px; height: 54px; }
+  #route-saying { max-width: 160px; font-size: 0.95rem; padding: 10px 12px; }
 }
 </style>
 </head>
 <body>
 <div class="container">
   <h1 id="arrow-title">Walk into the direction of the arrow</h1>
-  <button id="enable-compass">Enable Compass</button>
+  
   <div id="arrow-container">
     <svg id="arrow" viewBox="0 0 120 120">
       <polygon id="arrow-shape" points="60,15 100,100 60,75 20,100"/>
     </svg>
   </div>
-  <div id="status-text">Waiting for compass...</div>
 
   <div class="info-row">
-    <div class="crowd-column">
-      <div id="crowd-square"><div id="crowd-blobs"></div></div>
-      <div id="heatmap-label">Heatmap</div>
+    <div id="crowd-square">
+      <div id="crowd-blobs"></div>
     </div>
     <div id="route-saying"></div>
   </div>
 </div>
 
 <script>
+// --- route sayings
 const sayings=[
  "We picked this route because it avoids the busiest areas.",
  "This way keeps you out of the densest parts of the crowd.",
@@ -211,7 +153,7 @@ const sayings=[
 ];
 document.getElementById("route-saying").textContent=sayings[Math.floor(Math.random()*sayings.length)];
 
-// Build heatmap
+// --- build heatmap
 (function(){
  const c=document.getElementById("crowd-blobs");c.innerHTML="";
  for(let r=0;r<9;r++)for(let col=0;col<9;col++){
@@ -225,35 +167,10 @@ document.getElementById("route-saying").textContent=sayings[Math.floor(Math.rand
  }
 })();
 
-// Compass & arrow logic
+// ---- compass & arrow logic
 const arrow=document.getElementById("arrow");
-const statusText=document.getElementById("status-text");
-const enableButton=document.getElementById("enable-compass");
-let targetAngles=[],currentTarget=0;
 let currentHeading=null,displayHeading=null;
-const tolerance=7;
 let smoothAlpha=null;
-
-function generateTargets(){
- targetAngles=[];
- for(let i=0;i<5;i++)targetAngles.push(Math.floor(Math.random()*360));
- console.log("targets",targetAngles);
-}
-
-enableButton.addEventListener("click",()=>{
- if(typeof DeviceOrientationEvent!=="undefined" &&
-    typeof DeviceOrientationEvent.requestPermission==="function"){
-   DeviceOrientationEvent.requestPermission().then(state=>{
-     if(state==="granted"){
-       startCompass();enableButton.style.display="none";
-       generateTargets();showNext();
-     }else alert("Compass access denied");
-   });
- }else{
-   startCompass();enableButton.style.display="none";
-   generateTargets();showNext();
- }
-});
 
 function startCompass(){
  window.addEventListener("deviceorientation",handleOrientation,true);
@@ -266,45 +183,26 @@ function handleOrientation(e){
  else if(e.alpha!=null){heading=360-e.alpha;}
  else return;
  if(smoothAlpha==null)smoothAlpha=heading;
- smoothAlpha=lerpAngle(smoothAlpha,heading,0.15);
+ smoothAlpha=(smoothAlpha*0.85 + heading*0.15); // smooth
  currentHeading=smoothAlpha;
-}
-
-function lerpAngle(a,b,t){
- let diff=((b-a+540)%360)-180;
- return (a+diff*t+360)%360;
 }
 
 function updateArrowSmooth(){
  if(currentHeading!=null){
    if(displayHeading==null)displayHeading=currentHeading;
-   displayHeading=lerpAngle(displayHeading,currentHeading,0.25);
-   const target=targetAngles[currentTarget]||0;
-   const rot=target-displayHeading;
-   arrow.style.transform=`rotate(${rot}deg)`;
-   checkTarget();
+   displayHeading=(displayHeading*0.75 + currentHeading*0.25);
+   arrow.style.transform=`rotate(${-displayHeading}deg)`;
  }
  requestAnimationFrame(updateArrowSmooth);
 }
 
-function checkTarget(){
- if(currentHeading==null)return;
- const target=targetAngles[currentTarget];
- let diff=Math.abs(((currentHeading-target+540)%360)-180);
- if(diff<=tolerance){
-   statusText.textContent=`✅ Target ${currentTarget+1} reached!`;
-   currentTarget++;
-   if(currentTarget<targetAngles.length){
-     setTimeout(showNext,1000);
-   }else{
-     setTimeout(()=>location.href="ending.html",1500);
-   }
- }
-}
-
-function showNext(){
- statusText.textContent=`Good! Now point to the next direction`;
-}
+// Auto-start compass on devices that allow it
+if(typeof DeviceOrientationEvent!=="undefined" &&
+   typeof DeviceOrientationEvent.requestPermission==="function"){
+   DeviceOrientationEvent.requestPermission().then(state=>{
+     if(state==="granted") startCompass();
+   }).catch(()=>{});
+}else{startCompass();}
 </script>
 </body>
 </html>
