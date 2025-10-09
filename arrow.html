@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pijl Rotatie Demo</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Direction Challenge</title>
   <style>
     body {
       background: linear-gradient(135deg, #dff6ff, #b5d9ff);
@@ -22,10 +21,10 @@
     }
 
     #arrow-title {
-      font-size: 2.5rem;
-      margin-bottom: 30px;
+      font-size: 2.2rem;
       color: #0044aa;
       font-weight: 700;
+      margin-bottom: 20px;
     }
 
     #arrow-container {
@@ -44,7 +43,7 @@
     #arrow {
       width: 220px;
       height: 220px;
-      transition: transform 1.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transition: transform 0.5s ease-out;
       transform-origin: 50% 50%;
     }
 
@@ -63,217 +62,137 @@
       font-size: 1.1rem;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
       margin-bottom: 20px;
       transition: all 0.2s ease-in-out;
     }
 
     #enable-compass:hover {
       background-color: #0d47a1;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     }
 
-    .info-row {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      justify-content: center;
-      gap: 32px;
-      margin-top: 0;
-    }
-
-    #crowd-square {
-      width: 90px;
-      height: 90px;
-      background: linear-gradient(135deg, #e3f2fd 60%, #bbdefb 100%);
-      border-radius: 22px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-      border: 1px solid #e0ecff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-      padding: 0;
-    }
-
-    #crowd-blobs {
-      width: 78px;
-      height: 78px;
-      display: grid;
-      grid-template-columns: repeat(9, 1fr);
-      grid-template-rows: repeat(9, 1fr);
-      gap: 1px;
-    }
-
-    .crowd-blob {
-      width: 7px;
-      height: 7px;
-      border-radius: 3px;
-    }
-
-    #route-saying {
-      width: 340px;
-      min-height: 70px;
-      background: linear-gradient(135deg, #e3f2fd 60%, #bbdefb 100%);
-      border-radius: 22px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.15em;
-      color: #1976d2;
-      font-weight: 500;
-      letter-spacing: 0.01em;
-      padding: 22px 24px;
-      border: 1px solid #e0ecff;
-      transition: box-shadow 0.3s;
-    }
-
-    #route-saying:hover {
-      box-shadow: 0 4px 18px rgba(0,0,0,0.12);
-    }
-
-    .crowd-column {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      height: 100%;
-    }
-
-    #heatmap-label {
-      margin-top: 2px;
-      font-size: 1.08rem;
+    #status-text {
+      font-size: 1.2rem;
       color: #1976d2;
       font-weight: 600;
-      letter-spacing: 0.03em;
-    }
-
-    @media (max-width: 900px) {
-      .info-row {
-        flex-direction: column;
-        gap: 24px;
-      }
-      #crowd-square, #route-saying {
-        width: 90vw;
-        min-width: 180px;
-        max-width: 340px;
-      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 id="arrow-title">Walk into the direction of the arrow</h1>
-
+    <h1 id="arrow-title">Point your phone in the direction of the arrow</h1>
     <button id="enable-compass">Enable Compass</button>
 
     <div id="arrow-container">
       <svg id="arrow" viewBox="0 0 120 120">
-        <polygon id="arrow-shape" points="60,15 100,100 60,75 20,100"/>
+        <polygon id="arrow-shape" points="60,15 100,100 60,75 20,100" />
       </svg>
     </div>
 
-    <div class="info-row">
-      <div class="crowd-column">
-        <div id="crowd-square">
-          <div id="crowd-blobs"></div>
-        </div>
-        <div id="heatmap-label">Heatmap</div>
-      </div>
-      <div id="route-saying"></div>
-    </div>
+    <div id="status-text">Waiting for compass...</div>
   </div>
 
   <script>
-    // Random route messages
-    const sayings = [
-      "We picked this route because it avoids the busiest areas.",
-      "This way keeps you out of the densest parts of the crowd.",
-      "Get there faster with a route that’s 30% less crowded.",
-      "Move more easily, this route is short and is 15% less crowded.",
-      "Save time with a path that cuts through 40% less congestion."
-    ];
+    let targetAngles = [];     // stores 5 random angles
+    let currentTargetIndex = 0;
+    const tolerance = 7;       // degrees accepted on each side
+    let currentHeading = null; // user’s compass direction
 
-    function setRandomSaying() {
-      const idx = Math.floor(Math.random() * sayings.length);
-      document.getElementById("route-saying").textContent = sayings[idx];
-    }
-    setRandomSaying();
-
-    // Fill the heatmap
-    function getCrowdColor(row, col, colorArray) {
-      if (row < 3) return "#ff5252";
-      return colorArray[row - 3][col];
-    }
-
-    function fillCrowdSquare() {
-      const container = document.getElementById("crowd-blobs");
-      container.innerHTML = "";
-      const rows = 6, cols = 9;
-      const colorArray = [];
-      for (let row = 0; row < rows; row++) {
-        let colors = [
-          ...Array(4).fill("#ff5252"),
-          ...Array(4).fill("#ffb74d"),
-          ...Array(1).fill("#66bb6a")
-        ];
-        for (let i = colors.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [colors[i], colors[j]] = [colors[j], colors[i]];
-        }
-        colorArray.push(colors);
-      }
-      for (let row = 0; row < 9; row++) {
-        for (let col = 0; col < 9; col++) {
-          const blob = document.createElement("div");
-          blob.className = "crowd-blob";
-          blob.style.background = row < 3
-            ? "#ff5252"
-            : getCrowdColor(row, col, colorArray);
-          container.appendChild(blob);
-        }
-      }
-    }
-    fillCrowdSquare();
-
-    // Compass functionality (works on both iOS and Android)
+    const arrow = document.getElementById("arrow");
+    const statusText = document.getElementById("status-text");
     const enableButton = document.getElementById("enable-compass");
 
+    // --- 1. Generate 5 random target directions ---
+    function generateTargetAngles() {
+      targetAngles = [];
+      for (let i = 0; i < 5; i++) {
+        targetAngles.push(Math.floor(Math.random() * 360));
+      }
+      console.log("Target angles:", targetAngles);
+    }
+
+    // --- 2. Start listening to compass data ---
     enableButton.addEventListener("click", () => {
-      if (typeof DeviceOrientationEvent !== "undefined" &&
-          typeof DeviceOrientationEvent.requestPermission === "function") {
-        // iOS 13+ path
+      if (
+        typeof DeviceOrientationEvent !== "undefined" &&
+        typeof DeviceOrientationEvent.requestPermission === "function"
+      ) {
+        // iOS 13+ (needs explicit permission)
         DeviceOrientationEvent.requestPermission()
-          .then(state => {
+          .then((state) => {
             if (state === "granted") {
               startCompass();
               enableButton.style.display = "none";
+              generateTargetAngles();
+              showNextTarget();
             } else {
-              alert("Compass access denied. Please allow access in Settings > Safari > Motion & Orientation Access.");
+              alert("Compass access denied. Enable it in Settings > Safari > Motion & Orientation Access.");
             }
           })
-          .catch(err => {
-            console.error(err);
-            alert("Error requesting compass permission.");
-          });
+          .catch(console.error);
       } else {
-        // Android or older browsers
+        // Android or desktop
         startCompass();
         enableButton.style.display = "none";
+        generateTargetAngles();
+        showNextTarget();
       }
     });
 
+    // --- 3. Add listener for device orientation ---
     function startCompass() {
       window.addEventListener("deviceorientation", handleOrientation, true);
     }
 
+    // --- 4. Handle the orientation event ---
     function handleOrientation(event) {
       let alpha = event.alpha;
-      if (typeof alpha === "number") {
-        document.getElementById("arrow").style.transform = `rotate(${alpha}deg)`;
+      if (typeof alpha !== "number") return;
+
+      currentHeading = alpha;
+      updateArrow();
+      checkIfTargetReached();
+    }
+
+    // --- 5. Rotate the arrow toward current target ---
+    function updateArrow() {
+      const targetAngle = targetAngles[currentTargetIndex];
+      const rotation = targetAngle - (currentHeading || 0);
+      arrow.style.transform = `rotate(${rotation}deg)`;
+    }
+
+    // --- 6. Check if user has reached the target direction ---
+    function checkIfTargetReached() {
+      const target = targetAngles[currentTargetIndex];
+      const heading = currentHeading;
+
+      if (heading == null) return;
+
+      // Compute smallest angular difference (wrap-around aware)
+      let diff = Math.abs(((heading - target + 540) % 360) - 180);
+
+      if (diff <= tolerance) {
+        // Reached target!
+        statusText.textContent = `✅ Target ${currentTargetIndex + 1} reached!`;
+
+        currentTargetIndex++;
+        if (currentTargetIndex < targetAngles.length) {
+          setTimeout(showNextTarget, 1200); // short pause before next
+        } else {
+          // All 5 done -> go to ending page
+          setTimeout(() => {
+            window.location.href = "ending.html";
+          }, 1500);
+        }
       }
+    }
+
+    // --- 7. Show next target and rotate arrow ---
+    function showNextTarget() {
+      const targetAngle = targetAngles[currentTargetIndex];
+      statusText.textContent = `🎯 Turn to ${targetAngle.toFixed(0)}°`;
+      updateArrow();
     }
   </script>
 </body>
