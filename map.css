@@ -9,14 +9,12 @@ body {
   font-family: 'Arial', sans-serif;
 }
 
-/* This block centers all content in the map container */
 .map-page {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-/* This block styles the big map title */
 .map-title {
   font-size: 2.5rem;
   color: #0044aa;
@@ -26,28 +24,24 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* This block creates the rounded blue area for the map */
 .map-area {
   position: relative;
-  width: 740px;  /* desktop width */
-  height: 480px;
+  width: 740px;
+  max-width: 90vw;
+  aspect-ratio: 740 / 480; /* maintain original ratio */
   background: linear-gradient(135deg, #e3f2fd 60%, #bbdefb 100%);
   border-radius: 28px;
-  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.09);
+  box-shadow: 0 2px 18px rgba(0,0,0,0.09);
   margin-bottom: 40px;
   overflow: hidden;
   border: 1px solid #e0ecff;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
 }
 
-/* This block styles each location square on the map */
+/* Map squares styling */
 .map-square {
   position: absolute;
-  min-width: 110px;
-  height: 62px;
+  width: 12%;      /* relative to map-area width */
+  aspect-ratio: 110 / 62;  /* preserve rectangle ratio */
   background: #e0ecff;
   border-radius: 16px;
   display: flex;
@@ -61,43 +55,27 @@ body {
   user-select: none;
   box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   border: 1px solid #c9dfff;
-  gap: 10px;
-  padding: 0 12px;
+  gap: 6%;
+  padding: 0 2%;
 }
 
-/* This block makes the square lighter and adds a shadow when you hover */
-.map-square:hover {
-  background: #c9dfff;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
-}
+/* Hover and selected states */
+.map-square:hover { background: #c9dfff; box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
+.map-square.selected { background: #1976d2; color: white; box-shadow: 0 4px 18px rgba(25,118,210,0.15); border: 1.5px solid #1976d2; }
 
-/* This block highlights the selected square */
-.map-square.selected {
-  background: #1976d2;
-  color: white;
-  box-shadow: 0 4px 18px rgba(25,118,210,0.15);
-  border: 1.5px solid #1976d2;
-}
+.map-icon { font-size: 1.3rem; margin-right: 6px; color: inherit; vertical-align: middle; }
 
-/* This block styles the icon inside each square */
-.map-icon {
-  font-size: 1.3rem;
-  margin-right: 6px;
-  color: inherit;
-  vertical-align: middle;
-}
+/* Relative positioning using percentages */
+#entrance1 { bottom: 3.75%; left: 9.5%; }
+#entrance2 { bottom: 3.75%; right: 9.5%; }
+#stage { top: 12.5%; left: 50%; transform: translateX(-50%); }
+#bar1 { top: 37.5%; left: 15%; }
+#bar2 { top: 41.7%; left: 43.2%; }
+#bar3 { top: 37.5%; right: 15%; }
+#foodtruck { bottom: 25%; right: 21.1%; }
+#exit { bottom: 7.9%; left: 50%; transform: translateX(-50%); }
 
-/* Positioning blocks */
-#entrance1 { bottom: 18px; left: 70px; }
-#entrance2 { bottom: 18px; right: 70px; }
-#stage { top: 60px; left: 50%; transform: translateX(-50%); min-width: 140px; height: 70px; }
-#bar1 { top: 180px; left: 110px; }
-#bar2 { top: 200px; left: 320px; }
-#bar3 { top: 180px; right: 110px; }
-#foodtruck { bottom: 120px; right: 160px; }
-#exit { bottom: 38px; left: 50%; transform: translateX(-50%); }
-
-/* This block styles the Next button below the map */
+/* Next button */
 .next-btn {
   padding: 15px 40px;
   font-size: 1.2rem;
@@ -112,48 +90,16 @@ body {
   margin-top: 8px;
 }
 
-/* This block makes the button darker and adds a shadow when you hover */
-.next-btn:hover {
-  background: #1565c0;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.12);
-}
+.next-btn:hover { background: #1565c0; box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
+.next-btn:disabled { background: #a0c4ff; cursor: not-allowed; }
 
-/* This block disables the button and changes its color */
-.next-btn:disabled {
-  background: #a0c4ff;
-  cursor: not-allowed;
-}
-
-/* ================= MOBILE OPTIMIZATION ================= */
+/* MOBILE OPTIMIZATION */
 @media (max-width: 600px) {
-  .map-title {
-    font-size: 2rem;
-    margin-bottom: 24px;
-  }
-
-  .map-area {
-    width: 90vw;        /* 90% of viewport width on phones */
-    height: auto;       /* allow height to scale automatically */
-    border-radius: 20px;
-    padding: 10px;
-  }
-
+  .map-title { font-size: 2rem; margin-bottom: 24px; }
   .map-square {
-    min-width: 80px;    /* smaller squares for mobile */
-    height: 50px;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     border-radius: 12px;
-    padding: 0 8px;
+    padding: 0 2%;
   }
-
-  #stage {
-    min-width: 100px;
-    height: 60px;
-  }
-
-  .next-btn {
-    padding: 12px 28px;
-    font-size: 1rem;
-    border-radius: 10px;
-  }
+  .next-btn { padding: 12px 28px; font-size: 1rem; border-radius: 10px; }
 }
