@@ -5,31 +5,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Direction Challenge</title>
 <style>
-/* ========== GENERAL LAYOUT ========== */
+/* ================= GENERAL STYLING ================= */
 body {
   margin: 0;
-  padding: 0;
   height: 100vh;
-  background: linear-gradient(135deg,#dff6ff,#b5d9ff);
-  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #dff6ff 60%, #b5d9ff 100%);
+  font-family: 'Arial', sans-serif;
   text-align: center;
+}
+
+/* Container for content */
+.transition-container {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
-/* ========== TITLE ========== */
-#arrow-title {
+/* Title above the privacy box */
+.transition-title, #arrow-title {
   font-size: 2.2rem;
   color: #0044aa;
-  font-weight: 700;
-  margin-top: 40px;
-  margin-bottom: 20px;
-  padding: 0 16px;
+  margin-top: 24px;
+  margin-bottom: 16px;
+  padding: 0 16px; /* padding to prevent touching edges */
   box-sizing: border-box;
+  text-align: center;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
-/* ========== BUTTON ========== */
+/* Arrow button */
 #enable-compass {
   background: #1976d2;
   color: #fff;
@@ -48,7 +57,7 @@ body {
   box-shadow: 0 6px 12px rgba(0,0,0,.2);
 }
 
-/* ========== ARROW ========== */
+/* Arrow container */
 #arrow-container {
   width: 350px;
   height: 350px;
@@ -73,15 +82,15 @@ body {
   stroke-width: 2;
 }
 
-/* ========== STATUS TEXT (hidden) ========== */
+/* Hide status text */
 #status-text {
   display: none;
 }
 
-/* ========== INFO SECTION (heatmap + text) ========== */
+/* Info section */
 .info-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   gap: 20px;
   flex-wrap: wrap;
@@ -103,7 +112,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
   padding: 6px;
 }
 
@@ -129,7 +137,6 @@ body {
   opacity: 0.9;
 }
 
-/* Text box next to heatmap */
 #route-saying {
   max-width: 240px;
   min-height: 70px;
@@ -147,12 +154,12 @@ body {
   text-align: center;
 }
 
-/* ========== MOBILE OPTIMIZATION ========== */
+/* ================= MOBILE OPTIMIZATION ================= */
 @media (max-width: 600px) {
-  #arrow-title {
-    font-size: 1.7rem;
-    margin-top: 24px;
-    margin-bottom: 16px;
+  .transition-title, #arrow-title {
+    font-size: 1.6rem;
+    margin-top: 16px;
+    margin-bottom: 12px;
     padding: 0 20px;
   }
 
@@ -196,25 +203,24 @@ body {
 </style>
 </head>
 <body>
-  <h1 id="arrow-title">Walk into the direction of the arrow</h1>
-  <button id="enable-compass">Enable Compass</button>
-  <div id="arrow-container">
-    <svg id="arrow" viewBox="0 0 120 120">
-      <polygon id="arrow-shape" points="60,15 100,100 60,75 20,100" />
-    </svg>
-  </div>
-  <div id="status-text">Waiting for compass...</div>
+<h1 id="arrow-title">Walk into the direction of the arrow</h1>
+<button id="enable-compass">Enable Compass</button>
+<div id="arrow-container">
+  <svg id="arrow" viewBox="0 0 120 120">
+    <polygon id="arrow-shape" points="60,15 100,100 60,75 20,100" />
+  </svg>
+</div>
 
-  <div class="info-row">
-    <div id="crowd-container">
-      <div id="crowd-square"><div id="crowd-blobs"></div></div>
-      <div id="crowd-caption">heatmap of the crowd</div>
-    </div>
-    <div id="route-saying"></div>
+<div class="info-row">
+  <div id="crowd-container">
+    <div id="crowd-square"><div id="crowd-blobs"></div></div>
+    <div id="crowd-caption">heatmap of the crowd</div>
   </div>
+  <div id="route-saying"></div>
+</div>
 
 <script>
-// ---- Route sayings
+// Route sayings
 const sayings = [
   "We picked this route because it avoids the busiest areas.",
   "This way keeps you out of the densest parts of the crowd.",
@@ -225,7 +231,7 @@ const sayings = [
 document.getElementById("route-saying").textContent =
   sayings[Math.floor(Math.random() * sayings.length)];
 
-// ---- Heatmap generator
+// Heatmap generator
 (function(){
   const c = document.getElementById("crowd-blobs");
   c.innerHTML = "";
@@ -241,7 +247,7 @@ document.getElementById("route-saying").textContent =
   }
 })();
 
-// ---- Compass logic (kept)
+// Compass logic
 const arrow = document.getElementById("arrow");
 const enableButton = document.getElementById("enable-compass");
 
@@ -253,7 +259,6 @@ const tolerance = 7;
 function generateTargets(){
   targetAngles = [];
   for (let i = 0; i < 5; i++) targetAngles.push(Math.floor(Math.random()*360));
-  console.log("targets", targetAngles);
 }
 
 enableButton.addEventListener("click",()=>{
@@ -264,7 +269,7 @@ enableButton.addEventListener("click",()=>{
         startCompass();
         enableButton.style.display="none";
         generateTargets();
-      }else alert("Compass access denied");
+      }
     });
   }else{
     startCompass();
@@ -300,21 +305,8 @@ function updateArrowSmooth(){
     const target=targetAngles[currentTarget]||0;
     const rot=target-displayHeading;
     arrow.style.transform=`rotate(${rot}deg)`;
-    checkTarget();
   }
   requestAnimationFrame(updateArrowSmooth);
-}
-
-function checkTarget(){
-  if(currentHeading==null)return;
-  const target=targetAngles[currentTarget];
-  let diff=Math.abs(((currentHeading-target+540)%360)-180);
-  if(diff<=tolerance){
-    currentTarget++;
-    if(currentTarget>=targetAngles.length){
-      setTimeout(()=>location.href="ending.html",1500);
-    }
-  }
 }
 </script>
 </body>
