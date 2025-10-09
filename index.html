@@ -1,23 +1,82 @@
-<!DOCTYPE html>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #dff6ff, #b5d9ff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
-<html lang="nl">
+.landing {
+  text-align: center;
+}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welkom Pagina</title>
-  <link rel="stylesheet" href="landing.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-</head>
+h1 {
+  color: #0044aa;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+}
 
-<body>
-  <div class="landing" id="landing">
-    <h1>Welcome, Visitor.</h1>
-    <div class="location-block">
-      <i class="fa-solid fa-location-dot"></i>
-      <span class="location-text">You are in: Lowlands, Biddinghuizen</span>
-    </div>
-    <button class="start-btn" onclick="location.href='dataprivacypage.html'">Start</button>
-  </div>
-</body>
-</html>
+.location-block {
+  display: inline-flex;
+  align-items: center;
+  background: #e3f2fd;
+  border-radius: 20px;
+  padding: 12px 28px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.8rem;
+}
+
+.location-block i {
+  color: #1976d2;
+  font-size: 1.4rem;
+  margin-right: 8px;
+}
+
+.location-text {
+  font-size: 1.1rem;
+  color: #1976d2;
+  font-weight: 600;
+}
+
+.start-btn {
+  background: #1976d2;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 38px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease;
+}
+
+.start-btn:hover {
+  background: #0d47a1;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+/* ---------- Mobile Optimization ---------- */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  .location-block {
+    flex-direction: row;
+    padding: 10px 18px;  /* narrower padding on mobile */
+    border-radius: 16px;
+  }
+
+  .location-text {
+    font-size: 1rem;
+  }
+
+  .start-btn {
+    font-size: 1.05rem;
+    padding: 12px 26px;  /* slightly smaller button */
+    border-radius: 12px;
+  }
+}
