@@ -29,7 +29,7 @@ body {
 /* This block creates the rounded blue area for the map */
 .map-area {
   position: relative;
-  width: 740px;
+  width: 740px;  /* desktop width */
   height: 480px;
   background: linear-gradient(135deg, #e3f2fd 60%, #bbdefb 100%);
   border-radius: 28px;
@@ -87,57 +87,15 @@ body {
   vertical-align: middle;
 }
 
-/* This block positions Entrance 1 at the bottom left */
-#entrance1 {
-  bottom: 18px;
-  left: 70px;
-}
-
-/* This block positions Entrance 2 at the bottom right */
-#entrance2 {
-  bottom: 18px;
-  right: 70px;
-}
-
-/* This block positions the Stage at the top center */
-#stage {
-  top: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 140px;
-  height: 70px;
-}
-
-/* This block positions Bar 1 at the left middle */
-#bar1 {
-  top: 180px;
-  left: 110px;
-}
-
-/* This block positions Bar 2 at the center middle */
-#bar2 {
-  top: 200px;
-  left: 320px;
-}
-
-/* This block positions Bar 3 at the right middle */
-#bar3 {
-  top: 180px;
-  right: 110px;
-}
-
-/* This block positions the Foodtruck at the bottom right */
-#foodtruck {
-  bottom: 120px;
-  right: 160px;
-}
-
-/* This block positions the Exit at the bottom center */
-#exit {
-  bottom: 38px;
-  left: 50%;
-  transform: translateX(-50%);
-}
+/* Positioning blocks */
+#entrance1 { bottom: 18px; left: 70px; }
+#entrance2 { bottom: 18px; right: 70px; }
+#stage { top: 60px; left: 50%; transform: translateX(-50%); min-width: 140px; height: 70px; }
+#bar1 { top: 180px; left: 110px; }
+#bar2 { top: 200px; left: 320px; }
+#bar3 { top: 180px; right: 110px; }
+#foodtruck { bottom: 120px; right: 160px; }
+#exit { bottom: 38px; left: 50%; transform: translateX(-50%); }
 
 /* This block styles the Next button below the map */
 .next-btn {
@@ -164,4 +122,38 @@ body {
 .next-btn:disabled {
   background: #a0c4ff;
   cursor: not-allowed;
+}
+
+/* ================= MOBILE OPTIMIZATION ================= */
+@media (max-width: 600px) {
+  .map-title {
+    font-size: 2rem;
+    margin-bottom: 24px;
+  }
+
+  .map-area {
+    width: 90vw;        /* 90% of viewport width on phones */
+    height: auto;       /* allow height to scale automatically */
+    border-radius: 20px;
+    padding: 10px;
+  }
+
+  .map-square {
+    min-width: 80px;    /* smaller squares for mobile */
+    height: 50px;
+    font-size: 0.95rem;
+    border-radius: 12px;
+    padding: 0 8px;
+  }
+
+  #stage {
+    min-width: 100px;
+    height: 60px;
+  }
+
+  .next-btn {
+    padding: 12px 28px;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
 }
