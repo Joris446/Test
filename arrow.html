@@ -62,14 +62,14 @@
       font-size: 1.1rem;
       font-weight: 600;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
       margin-bottom: 20px;
       transition: all 0.2s ease-in-out;
     }
 
     #enable-compass:hover {
       background-color: #0d47a1;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
     }
 
     #status-text {
@@ -94,16 +94,16 @@
   </div>
 
   <script>
-    let targetAngles = [];     // stores 5 random angles
+    let targetAngles = [];
     let currentTargetIndex = 0;
-    const tolerance = 7;       // degrees accepted on each side
-    let currentHeading = null; // user’s compass direction
+    const tolerance = 7; // acceptable error in degrees
+    let currentHeading = null;
 
     const arrow = document.getElementById("arrow");
     const statusText = document.getElementById("status-text");
     const enableButton = document.getElementById("enable-compass");
 
-    // --- 1. Generate 5 random target directions ---
+    // Generate 5 random angles
     function generateTargetAngles() {
       targetAngles = [];
       for (let i = 0; i < 5; i++) {
@@ -112,13 +112,13 @@
       console.log("Target angles:", targetAngles);
     }
 
-    // --- 2. Start listening to compass data ---
+    // Request permission and start compass
     enableButton.addEventListener("click", () => {
       if (
         typeof DeviceOrientationEvent !== "undefined" &&
         typeof DeviceOrientationEvent.requestPermission === "function"
       ) {
-        // iOS 13+ (needs explicit permission)
+        // iOS 13+
         DeviceOrientationEvent.requestPermission()
           .then((state) => {
             if (state === "granted") {
@@ -140,47 +140,55 @@
       }
     });
 
-    // --- 3. Add listener for device orientation ---
+    // Start listening to deviceorientation
     function startCompass() {
       window.addEventListener("deviceorientation", handleOrientation, true);
     }
 
-    // --- 4. Handle the orientation event ---
+    // Normalize heading depending on device
     function handleOrientation(event) {
-      let alpha = event.alpha;
-      if (typeof alpha !== "number") return;
+      let heading;
 
-      currentHeading = alpha;
+      if (event.webkitCompassHeading !== undefined) {
+        // iPhone Safari provides true compass heading directly
+        heading = event.webkitCompassHeading;
+      } else if (event.alpha !== null) {
+        // Android provides alpha relative to device
+        heading = 360 - event.alpha; // reverse direction to match compass
+      } else {
+        return;
+      }
+
+      // Smooth the movement a little (optional)
+      if (currentHeading == null) currentHeading = heading;
+      currentHeading = currentHeading * 0.8 + heading * 0.2;
+
       updateArrow();
       checkIfTargetReached();
     }
 
-    // --- 5. Rotate the arrow toward current target ---
+    // Update arrow rotation relative to current heading
     function updateArrow() {
       const targetAngle = targetAngles[currentTargetIndex];
       const rotation = targetAngle - (currentHeading || 0);
       arrow.style.transform = `rotate(${rotation}deg)`;
     }
 
-    // --- 6. Check if user has reached the target direction ---
+    // Check if user’s phone is pointing close enough to the target
     function checkIfTargetReached() {
       const target = targetAngles[currentTargetIndex];
       const heading = currentHeading;
 
       if (heading == null) return;
 
-      // Compute smallest angular difference (wrap-around aware)
       let diff = Math.abs(((heading - target + 540) % 360) - 180);
-
       if (diff <= tolerance) {
-        // Reached target!
         statusText.textContent = `✅ Target ${currentTargetIndex + 1} reached!`;
 
         currentTargetIndex++;
         if (currentTargetIndex < targetAngles.length) {
-          setTimeout(showNextTarget, 1200); // short pause before next
+          setTimeout(showNextTarget, 1200);
         } else {
-          // All 5 done -> go to ending page
           setTimeout(() => {
             window.location.href = "ending.html";
           }, 1500);
@@ -188,7 +196,6 @@
       }
     }
 
-    // --- 7. Show next target and rotate arrow ---
     function showNextTarget() {
       const targetAngle = targetAngles[currentTargetIndex];
       statusText.textContent = `🎯 Turn to ${targetAngle.toFixed(0)}°`;
