@@ -128,4 +128,50 @@
       <div class="map-square" data-location="Entrance 1" data-value="1" id="entrance1">
         <i class="fa-solid fa-door-open map-icon"></i><span>Entrance 1</span>
       </div>
-      <div class="map-square" data-
+      <div class="map-square" data-location="Entrance 2" data-value="2" id="entrance2">
+        <i class="fa-solid fa-door-open map-icon"></i><span>Entrance 2</span>
+      </div>
+      <div class="map-square" data-location="Stage" data-value="3" id="stage">
+        <i class="fa-solid fa-music map-icon"></i><span>Stage</span>
+      </div>
+      <div class="map-square" data-location="Bar 1" data-value="4" id="bar1">
+        <i class="fa-solid fa-beer-mug-empty map-icon"></i><span>Bar 1</span>
+      </div>
+      <div class="map-square" data-location="Bar 2" data-value="5" id="bar2">
+        <i class="fa-solid fa-beer-mug-empty map-icon"></i><span>Bar 2</span>
+      </div>
+      <div class="map-square" data-location="Bar 3" data-value="6" id="bar3">
+        <i class="fa-solid fa-beer-mug-empty map-icon"></i><span>Bar 3</span>
+      </div>
+      <div class="map-square" data-location="Foodtruck" data-value="7" id="foodtruck">
+        <i class="fa-solid fa-hotdog map-icon"></i><span>Foodtruck</span>
+      </div>
+      <div class="map-square" data-location="Exit" data-value="8" id="exit">
+        <i class="fa-solid fa-arrow-right-to-bracket map-icon"></i><span>Exit</span>
+      </div>
+    </div>
+    <button class="next-btn" id="nextButton" disabled>Let's walk</button>
+  </div>
+
+  <script>
+    const squares = document.querySelectorAll('.map-square');
+    const nextButton = document.getElementById('nextButton');
+    let selectedSquare = null;
+
+    squares.forEach(square => {
+      square.addEventListener('click', () => {
+        if (selectedSquare) selectedSquare.classList.remove('selected');
+        square.classList.add('selected');
+        selectedSquare = square;
+        localStorage.setItem('selectedLocationName', square.dataset.location);
+        localStorage.setItem('selectedLocationValue', square.dataset.value);
+        nextButton.disabled = false;
+      });
+    });
+
+    nextButton.addEventListener('click', () => {
+      if (selectedSquare) window.location.href = 'arrow.html';
+    });
+  </script>
+</body>
+</html>
