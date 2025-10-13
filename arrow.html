@@ -24,7 +24,7 @@ body { margin:0; font-family:Arial,sans-serif; background:linear-gradient(135deg
 </div>
 
 <script>
-const NGROK_URL = "https://graphological-nontheistically-cindy.ngrok-free.dev"; // your Ngrok URL here
+const NGROK_URL = "https://graphological-nontheistically-cindy.ngrok-free.dev"; // your actual Ngrok URL
 const arrow = document.getElementById("arrow");
 const enableButton = document.getElementById("enable-compass");
 
@@ -94,7 +94,7 @@ function updateArrowSmooth() {
 // ----- Fetch angle from Python
 async function fetchNextAngle() {
   try {
-    const resp = await fetch(`${'https://graphological-nontheistically-cindy.ngrok-free.dev'}/get_angle`);
+    const resp = await fetch(`${NGROK_URL}/get_angle`);
     const data = await resp.json();
     currentAngle = data.angle;
     console.log("New angle received:", currentAngle);
