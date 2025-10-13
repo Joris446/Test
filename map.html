@@ -149,7 +149,7 @@
         nextButton.disabled = false;
 
         // Send to Flask backend
-        fetch('http://localhost:5000/set_location', {
+        fetch('https://graphological-nontheistically-cindy.ngrok-free.dev', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
@@ -169,3 +169,4 @@
   </script>
 </body>
 </html>
+
