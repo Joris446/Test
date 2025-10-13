@@ -157,6 +157,18 @@
     nextButton.addEventListener('click', () => {
       if (selectedSquare) window.location.href = 'arrow.html';
     });
+
+    // After localStorage is set, send to Flask
+fetch('http://localhost:5000/set_location', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    location: square.dataset.location,
+    value: square.dataset.value
+  })
+});
+
   </script>
 </body>
 </html>
+
