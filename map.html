@@ -78,12 +78,11 @@
 
     .map-icon { margin-right: 0.2rem; font-size: 1rem; }
 
-    /* Updated positions */
-    #entrance1 { bottom: 4%; left: 9%; } /* renamed Entrance/Exit */
+    #entrance1 { bottom: 4%; left: 9%; }
     #stage { top: 12%; left: 50%; transform: translateX(-50%); width: 16%; height: 14%; }
     #bar1 { top: 37%; left: 15%; }
-    #bar2 { top: 37%; right: 15%; } /* renamed Bar3 → Bar2 */
-    #foodtruck { bottom: 30%; right: 15%; } /* moved up and to the right */
+    #bar2 { top: 37%; right: 15%; }
+    #foodtruck { bottom: 30%; right: 15%; }
 
     .next-btn {
       margin-top: 12px;
@@ -104,12 +103,7 @@
 
     @media (max-width: 480px) {
       .map-title { font-size: 1.8rem; margin-bottom: 12px; }
-      .map-square {
-        font-size: 0.75rem;
-        padding: 0.15rem 0.25rem;
-        min-width: 35px;
-        border-radius: 10px;
-      }
+      .map-square { font-size: 0.75rem; padding: 0.15rem 0.25rem; min-width: 35px; border-radius: 10px; }
       .map-icon { font-size: 0.8rem; }
       .next-btn { padding: 8px 18px; font-size: 0.85rem; }
     }
@@ -148,27 +142,30 @@
         if (selectedSquare) selectedSquare.classList.remove('selected');
         square.classList.add('selected');
         selectedSquare = square;
+
+        // Store in localStorage
         localStorage.setItem('selectedLocationName', square.dataset.location);
         localStorage.setItem('selectedLocationValue', square.dataset.value);
         nextButton.disabled = false;
+
+        // Send to Flask backend
+        fetch('http://localhost:5000/set_location', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            location: square.dataset.location,
+            value: square.dataset.value
+          })
+        })
+        .then(response => response.json())
+        .then(data => console.log("Flask response:", data))
+        .catch(err => console.error("Error sending location:", err));
       });
     });
 
     nextButton.addEventListener('click', () => {
       if (selectedSquare) window.location.href = 'arrow.html';
     });
-
-    // After localStorage is set, send to Flask
-fetch('http://localhost:5000/set_location', {
-  method: 'POST',
-  headers: {'Content-Type': 'application/json'},
-  body: JSON.stringify({
-    location: square.dataset.location,
-    value: square.dataset.value
-  })
-});
-
   </script>
 </body>
 </html>
-
