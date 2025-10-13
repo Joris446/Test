@@ -22,12 +22,6 @@
     .next-btn { margin-top: 12px; padding: 10px 22px; font-size: 1rem; border-radius: 10px; border: none; background: #1976d2; color: white; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.07); transition: all 0.2s ease; }
     .next-btn:hover { background: #1565c0; box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
     .next-btn:disabled { background: #a0c4ff; cursor: not-allowed; }
-    @media (max-width: 480px) {
-      .map-title { font-size: 1.8rem; margin-bottom: 12px; }
-      .map-square { font-size: 0.75rem; padding: 0.15rem 0.25rem; min-width: 35px; border-radius: 10px; }
-      .map-icon { font-size: 0.8rem; }
-      .next-btn { padding: 8px 18px; font-size: 0.85rem; }
-    }
   </style>
 </head>
 <body>
@@ -60,7 +54,7 @@
     nextButton.addEventListener('click', () => {
       if (!selectedSquare) return;
 
-      // Send selected location to Flask asynchronously (don't wait)
+      // Send selected location but do not wait for response
       fetch('https://graphological-nontheistically-cindy.ngrok-free.dev/send_location', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -70,7 +64,7 @@
         })
       }).catch(err => console.error("Error sending location:", err));
 
-      // Move immediately to arrow page
+      // Immediately go to arrow page
       window.location.href = 'arrow.html';
     });
   </script>
