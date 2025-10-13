@@ -148,15 +148,15 @@
         localStorage.setItem('selectedLocationValue', square.dataset.value);
         nextButton.disabled = false;
 
-        // Send to Flask backend
-        fetch('https://graphological-nontheistically-cindy.ngrok-free.dev', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            location: square.dataset.location,
-            value: square.dataset.value
-          })
-        })
+fetch('https://graphological-nontheistically-cindy.ngrok-free.dev/send_location', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    location: square.dataset.location,
+    value: square.dataset.value
+  })
+})
+
         .then(response => response.json())
         .then(data => console.log("Flask response:", data))
         .catch(err => console.error("Error sending location:", err));
@@ -169,4 +169,5 @@
   </script>
 </body>
 </html>
+
 
