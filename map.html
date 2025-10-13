@@ -48,27 +48,34 @@
         nextButton.disabled = false;
       });
     });
+nextButton.addEventListener('click', () => {
+  if (!selectedSquare) return;
 
-    nextButton.addEventListener('click', () => {
-      if (!selectedSquare) return;
+  fetch('https://graphological-nontheistically-cindy.ngrok-free.dev/send_location', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      location: selectedSquare.dataset.location,
+      value: selectedSquare.dataset.value
+    }),
+    mode: 'cors'   // explicitly allow cross-origin requests
+  })
+  .then(response => {
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  })
+  .then(data => {
+    console.log("Flask response:", data);
+    // Navigate only after successful POST
+    window.location.href = 'arrow.html';
+  })
+  .catch(err => {
+    console.error("Error sending location:", err);
+    alert("Failed to send location. Check console for details.");
+  });
+});
 
-      // Send to Flask backend only on button press
-      fetch('https://graphological-nontheistically-cindy.ngrok-free.dev/send_location', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          location: selectedSquare.dataset.location,
-          value: selectedSquare.dataset.value
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log("Flask response:", data);
-        // Only move to arrow page after successful POST
-        window.location.href = 'arrow.html';
-      })
-      .catch(err => console.error("Error sending location:", err));
-    });
   </script>
 </body>
 </html>
+
