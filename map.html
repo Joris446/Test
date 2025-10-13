@@ -14,20 +14,12 @@
     .map-square:hover { background: #c9dfff; box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
     .map-square.selected { background: #1976d2; color: white; box-shadow: 0 4px 18px rgba(25,118,210,0.15); border: 1.5px solid #1976d2; }
     .map-icon { margin-right: 0.2rem; font-size: 1rem; }
-    #entrance1 { bottom: 4%; left: 9%; }
-    #stage { top: 12%; left: 50%; transform: translateX(-50%); width: 16%; height: 14%; }
-    #bar1 { top: 37%; left: 15%; }
-    #bar2 { top: 37%; right: 15%; }
-    #foodtruck { bottom: 30%; right: 15%; }
+    #entrance1 { bottom: 4%; left: 9%; } #stage { top: 12%; left: 50%; transform: translateX(-50%); width: 16%; height: 14%; }
+    #bar1 { top: 37%; left: 15%; } #bar2 { top: 37%; right: 15%; } #foodtruck { bottom: 30%; right: 15%; }
     .next-btn { margin-top: 12px; padding: 10px 22px; font-size: 1rem; border-radius: 10px; border: none; background: #1976d2; color: white; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.07); transition: all 0.2s ease; }
     .next-btn:hover { background: #1565c0; box-shadow: 0 4px 18px rgba(0,0,0,0.12); }
     .next-btn:disabled { background: #a0c4ff; cursor: not-allowed; }
-    @media (max-width: 480px) {
-      .map-title { font-size: 1.8rem; margin-bottom: 12px; }
-      .map-square { font-size: 0.75rem; padding: 0.15rem 0.25rem; min-width: 35px; border-radius: 10px; }
-      .map-icon { font-size: 0.8rem; }
-      .next-btn { padding: 8px 18px; font-size: 0.85rem; }
-    }
+    @media (max-width: 480px) { .map-title { font-size: 1.8rem; margin-bottom: 12px; } .map-square { font-size: 0.75rem; padding: 0.15rem 0.25rem; min-width: 35px; border-radius: 10px; } .map-icon { font-size: 0.8rem; } .next-btn { padding: 8px 18px; font-size: 0.85rem; } }
   </style>
 </head>
 <body>
@@ -60,19 +52,19 @@
     nextButton.addEventListener('click', () => {
       if (!selectedSquare) return;
 
-      // Send selected location to Flask
+      // Send to Flask backend only on button press
       fetch('https://graphological-nontheistically-cindy.ngrok-free.dev/send_location', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
-          location_name: selectedSquare.dataset.location,
-          location_value: selectedSquare.dataset.value
+          location: selectedSquare.dataset.location,
+          value: selectedSquare.dataset.value
         })
       })
       .then(response => response.json())
       .then(data => {
         console.log("Flask response:", data);
-        // Go to arrow page only after sending location
+        // Only move to arrow page after successful POST
         window.location.href = 'arrow.html';
       })
       .catch(err => console.error("Error sending location:", err));
