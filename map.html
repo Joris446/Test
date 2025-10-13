@@ -57,28 +57,22 @@
       });
     });
 
-nextButton.addEventListener('click', () => {
-  if (!selectedSquare) return;
+    nextButton.addEventListener('click', () => {
+      if (!selectedSquare) return;
 
-  // Send selected location to Flask
-  fetch('https://graphological-nontheistically-cindy.ngrok-free.dev/send_location', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      location_name: selectedSquare.dataset.location,
-      location_value: selectedSquare.dataset.value
-    })
-  })
-  .then(response => response.json())
-  .then(data => {
-    console.log("Flask response:", data);
-    // Go to arrow page only after sending location
-    window.location.href = 'arrow.html';
-  })
-  .catch(err => console.error("Error sending location:", err));
-});
+      // Send selected location to Flask asynchronously (don't wait)
+      fetch('https://graphological-nontheistically-cindy.ngrok-free.dev/send_location', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location_name: selectedSquare.dataset.location,
+          location_value: selectedSquare.dataset.value
+        })
+      }).catch(err => console.error("Error sending location:", err));
 
+      // Move immediately to arrow page
+      window.location.href = 'arrow.html';
+    });
   </script>
 </body>
 </html>
-
