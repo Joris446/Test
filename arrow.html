@@ -63,7 +63,7 @@ body {
   overflow: hidden;
 }
 #arrow {
-  width: 312px; /* 125% larger */
+  width: 312px;
   height: 312px;
   transform-origin: 50% 50%;
 }
@@ -148,49 +148,14 @@ body {
 
 /* ========== MOBILE OPTIMIZATION ========== */
 @media (max-width: 600px) {
-  #arrow-title {
-    font-size: 1.6rem;
-    margin-top: 24px;
-    margin-bottom: 16px;
-    padding: 0 20px;
-  }
-
-  #arrow-container {
-    width: 260px;
-    height: 260px;
-    margin-bottom: 20px;
-  }
-
-  #arrow {
-    width: 235px;
-    height: 235px;
-  }
-
-  .info-row {
-    gap: 14px;
-  }
-
-  #crowd-square {
-    width: 75px;
-    height: 75px;
-    border-radius: 14px;
-  }
-
-  .crowd-blob {
-    width: 6px;
-    height: 6px;
-  }
-
-  #route-saying {
-    max-width: 180px;
-    font-size: 0.95rem;
-    padding: 12px 14px;
-    border-radius: 14px;
-  }
-
-  #crowd-caption {
-    font-size: 0.75rem;
-  }
+  #arrow-title { font-size: 1.6rem; margin-top: 24px; margin-bottom: 16px; padding: 0 20px; }
+  #arrow-container { width: 260px; height: 260px; margin-bottom: 20px; }
+  #arrow { width: 235px; height: 235px; }
+  .info-row { gap: 14px; }
+  #crowd-square { width: 75px; height: 75px; border-radius: 14px; }
+  .crowd-blob { width: 6px; height: 6px; }
+  #route-saying { max-width: 180px; font-size: 0.95rem; padding: 12px 14px; border-radius: 14px; }
+  #crowd-caption { font-size: 0.75rem; }
 }
 </style>
 </head>
@@ -240,7 +205,7 @@ document.getElementById("route-saying").textContent =
   }
 })();
 
-// ---- Compass logic
+// ---- Compass logic ----
 const arrow = document.getElementById("arrow");
 const enableButton = document.getElementById("enable-compass");
 
@@ -250,33 +215,40 @@ let smoothAlpha = null;
 const tolerance = 7;
 let withinTarget = false;
 
-function generateTargets(){
-  targetAngles = [];
-  for (let i = 0; i < 5; i++) targetAngles.push(Math.floor(Math.random()*360));
-  console.log("targets", targetAngles);
+// ---- Get next angle from Flask
+async function fetchNextAngle() {
+  const resp = await fetch('http://localhost:5000/get_angle');
+  const data = await resp.json();
+  targetAngles[currentTarget] = data.angle;
 }
 
-enableButton.addEventListener("click",()=>{
+async function reportTap() {
+  const resp = await fetch('http://localhost:5000/tap', {method:'POST'});
+  const data = await resp.json();
+  return data.finished;
+}
+
+enableButton.addEventListener("click", async ()=>{
   if(typeof DeviceOrientationEvent!=="undefined" &&
      typeof DeviceOrientationEvent.requestPermission==="function"){
     DeviceOrientationEvent.requestPermission().then(state=>{
       if(state==="granted"){
         startCompass();
         enableButton.style.display="none";
-        generateTargets();
+        fetchNextAngle();
       }else alert("Compass access denied");
     });
   }else{
     startCompass();
     enableButton.style.display="none";
-    generateTargets();
+    fetchNextAngle();
   }
 });
 
 function startCompass(){
   window.addEventListener("deviceorientation",handleOrientation,true);
   requestAnimationFrame(updateArrowSmooth);
-  document.body.addEventListener("click",handleTap);
+  document.body.addEventListener("click", handleTap);
 }
 
 function handleOrientation(e){
@@ -309,11 +281,14 @@ function updateArrowSmooth(){
   requestAnimationFrame(updateArrowSmooth);
 }
 
-function handleTap(){
+async function handleTap(){
   if(withinTarget){
+    const finished = await reportTap();
     currentTarget++;
-    if(currentTarget>=targetAngles.length){
+    if(finished){
       setTimeout(()=>location.href="ending.html",1000);
+    } else {
+      fetchNextAngle();
     }
   }
 }
