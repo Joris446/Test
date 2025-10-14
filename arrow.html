@@ -63,7 +63,7 @@ body {
   overflow: hidden;
 }
 #arrow {
-  width: 312px; /* 125% larger */
+  width: 312px;
   height: 312px;
   transform-origin: 50% 50%;
 }
@@ -73,9 +73,12 @@ body {
   stroke-width: 2;
 }
 
-/* ========== STATUS TEXT (hidden) ========== */
+/* ========== STATUS TEXT ========== */
 #status-text {
-  display: none;
+  font-size: 1rem;
+  color: #0044aa;
+  margin-bottom: 16px;
+  font-weight: 600;
 }
 
 /* ========== INFO SECTION (heatmap + text) ========== */
@@ -213,11 +216,13 @@ body {
   </div>
 
 <script>
+const API_URL = "https://graphological-nontheistically-cindy.ngrok-free.dev";
+
 // ---- Route sayings
 const sayings = [
   "We picked this route because it avoids the busiest areas.",
   "This way keeps you out of the densest parts of the crowd.",
-  "Get there faster with a route that’s 30% less crowded.",
+  "Get there faster with a route that's 30% less crowded.",
   "Move more easily, this route is short and 15% less crowded.",
   "Save time with a path that cuts through 40% less congestion."
 ];
@@ -243,78 +248,143 @@ document.getElementById("route-saying").textContent =
 // ---- Compass logic
 const arrow = document.getElementById("arrow");
 const enableButton = document.getElementById("enable-compass");
+const statusText = document.getElementById("status-text");
 
-let targetAngles = [], currentTarget = 0;
+let currentTargetAngle = null;
 let currentHeading = null, displayHeading = null;
 let smoothAlpha = null;
 const tolerance = 7;
 let withinTarget = false;
+let compassEnabled = false;
 
-function generateTargets(){
-  targetAngles = [];
-  for (let i = 0; i < 5; i++) targetAngles.push(Math.floor(Math.random()*360));
-  console.log("targets", targetAngles);
+// Fetch the first angle from the server
+async function fetchNextAngle() {
+  try {
+    const response = await fetch(`${API_URL}/get_angle`, {
+      method: "GET",
+      headers: {
+        "ngrok-skip-browser-warning": "true"
+      }
+    });
+    
+    const data = await response.json();
+    console.log("Received angle from server:", data.angle);
+    
+    if (data.angle > 360) {
+      // Finished! Go to ending page
+      console.log("All angles completed! Going to ending page.");
+      setTimeout(() => location.href = "ending.html", 1000);
+    } else {
+      currentTargetAngle = data.angle;
+      statusText.textContent = `Target direction: ${data.angle}°`;
+    }
+  } catch (err) {
+    console.error("Error fetching angle:", err);
+    statusText.textContent = "Error connecting to server";
+  }
 }
 
-enableButton.addEventListener("click",()=>{
-  if(typeof DeviceOrientationEvent!=="undefined" &&
-     typeof DeviceOrientationEvent.requestPermission==="function"){
-    DeviceOrientationEvent.requestPermission().then(state=>{
-      if(state==="granted"){
-        startCompass();
-        enableButton.style.display="none";
-        generateTargets();
-      }else alert("Compass access denied");
+// Send tap to server and get next angle
+async function registerTap() {
+  try {
+    const response = await fetch(`${API_URL}/tap`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true"
+      },
+      body: JSON.stringify({ tap: true })
     });
-  }else{
+    
+    const data = await response.json();
+    console.log("Tap registered:", data);
+    
+    if (data.finished) {
+      statusText.textContent = "Great! Loading final destination...";
+    } else {
+      statusText.textContent = `Good! ${data.taps_remaining} more to go.`;
+    }
+    
+    // Fetch the next angle
+    await fetchNextAngle();
+    
+  } catch (err) {
+    console.error("Error registering tap:", err);
+  }
+}
+
+enableButton.addEventListener("click", () => {
+  if (typeof DeviceOrientationEvent !== "undefined" &&
+      typeof DeviceOrientationEvent.requestPermission === "function") {
+    DeviceOrientationEvent.requestPermission().then(state => {
+      if (state === "granted") {
+        startCompass();
+      } else {
+        alert("Compass access denied");
+      }
+    });
+  } else {
     startCompass();
-    enableButton.style.display="none";
-    generateTargets();
   }
 });
 
-function startCompass(){
-  window.addEventListener("deviceorientation",handleOrientation,true);
+function startCompass() {
+  enableButton.style.display = "none";
+  compassEnabled = true;
+  statusText.textContent = "Getting first direction...";
+  
+  window.addEventListener("deviceorientation", handleOrientation, true);
   requestAnimationFrame(updateArrowSmooth);
-  document.body.addEventListener("click",handleTap);
+  document.body.addEventListener("click", handleTap);
+  
+  // Fetch the first angle
+  fetchNextAngle();
 }
 
-function handleOrientation(e){
+function handleOrientation(e) {
   let heading;
-  if(e.webkitCompassHeading!==undefined){heading=e.webkitCompassHeading;}
-  else if(e.alpha!=null){heading=360-e.alpha;}
-  else return;
-  if(smoothAlpha==null)smoothAlpha=heading;
-  smoothAlpha=lerpAngle(smoothAlpha,heading,0.15);
-  currentHeading=smoothAlpha;
+  if (e.webkitCompassHeading !== undefined) {
+    heading = e.webkitCompassHeading;
+  } else if (e.alpha != null) {
+    heading = 360 - e.alpha;
+  } else {
+    return;
+  }
+  
+  if (smoothAlpha == null) smoothAlpha = heading;
+  smoothAlpha = lerpAngle(smoothAlpha, heading, 0.15);
+  currentHeading = smoothAlpha;
 }
 
-function lerpAngle(a,b,t){
-  let diff=((b-a+540)%360)-180;
-  return (a+diff*t+360)%360;
+function lerpAngle(a, b, t) {
+  let diff = ((b - a + 540) % 360) - 180;
+  return (a + diff * t + 360) % 360;
 }
 
-function updateArrowSmooth(){
-  if(currentHeading!=null){
-    if(displayHeading==null)displayHeading=currentHeading;
-    displayHeading=lerpAngle(displayHeading,currentHeading,0.25);
-    const target=targetAngles[currentTarget]||0;
-    const rot=target-displayHeading;
-    arrow.style.transform=`rotate(${rot}deg)`;
+function updateArrowSmooth() {
+  if (currentHeading != null && currentTargetAngle != null) {
+    if (displayHeading == null) displayHeading = currentHeading;
+    displayHeading = lerpAngle(displayHeading, currentHeading, 0.25);
+    
+    const rot = currentTargetAngle - displayHeading;
+    arrow.style.transform = `rotate(${rot}deg)`;
 
     // Check if within tolerance
-    const diff=Math.abs(((currentHeading-target+540)%360)-180);
+    const diff = Math.abs(((currentHeading - currentTargetAngle + 540) % 360) - 180);
     withinTarget = diff <= tolerance;
   }
   requestAnimationFrame(updateArrowSmooth);
 }
 
-function handleTap(){
-  if(withinTarget){
-    currentTarget++;
-    if(currentTarget>=targetAngles.length){
-      setTimeout(()=>location.href="ending.html",1000);
-    }
+function handleTap() {
+  if (!compassEnabled) return;
+  
+  if (withinTarget) {
+    console.log("Tap registered - user is pointing in the right direction!");
+    registerTap();
+  } else {
+    console.log("Tap ignored - not pointing in the right direction");
+    statusText.textContent = "Point in the arrow direction first!";
   }
 }
 </script>
