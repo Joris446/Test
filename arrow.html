@@ -73,12 +73,9 @@ body {
   stroke-width: 2;
 }
 
-/* ========== STATUS TEXT ========== */
+/* ========== STATUS TEXT (HIDDEN) ========== */
 #status-text {
-  font-size: 1rem;
-  color: #0044aa;
-  margin-bottom: 16px;
-  font-weight: 600;
+  display: none;
 }
 
 /* ========== INFO SECTION (heatmap + text) ========== */
@@ -276,11 +273,9 @@ async function fetchNextAngle() {
       setTimeout(() => location.href = "ending.html", 1000);
     } else {
       currentTargetAngle = data.angle;
-      statusText.textContent = `Target direction: ${data.angle}°`;
     }
   } catch (err) {
     console.error("Error fetching angle:", err);
-    statusText.textContent = "Error connecting to server";
   }
 }
 
@@ -298,12 +293,6 @@ async function registerTap() {
     
     const data = await response.json();
     console.log("Tap registered:", data);
-    
-    if (data.finished) {
-      statusText.textContent = "Great! Loading final destination...";
-    } else {
-      statusText.textContent = `Good! ${data.taps_remaining} more to go.`;
-    }
     
     // Fetch the next angle
     await fetchNextAngle();
@@ -331,7 +320,6 @@ enableButton.addEventListener("click", () => {
 function startCompass() {
   enableButton.style.display = "none";
   compassEnabled = true;
-  statusText.textContent = "Getting first direction...";
   
   window.addEventListener("deviceorientation", handleOrientation, true);
   requestAnimationFrame(updateArrowSmooth);
@@ -384,7 +372,6 @@ function handleTap() {
     registerTap();
   } else {
     console.log("Tap ignored - not pointing in the right direction");
-    statusText.textContent = "Point in the arrow direction first!";
   }
 }
 </script>
