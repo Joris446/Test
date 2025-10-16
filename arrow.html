@@ -50,21 +50,20 @@ body {
 
 /* ========== ARROW ========== */
 #arrow-container {
-  width: 350px;
-  height: 350px;
+  width: 300px;
+  height: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg,#e3f2fd 60%,#bbdefb 100%);
   border-radius: 50%;
-  box-shadow: 0 2px 18px rgba(0,0,0,0.09);
-  border: 1px solid #e0ecff;
-  margin-bottom: 32px;
-  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
 }
+
 #arrow {
-  width: 312px;
-  height: 312px;
+  width: 250px;
+  height: 250px;
   transform-origin: 50% 50%;
 }
 #arrow-shape {
@@ -94,8 +93,8 @@ body {
 }
 
 #crowd-square {
-  width: 90px;
-  height: 90px;
+  width: 120px;
+  height: 120px;
   background: linear-gradient(135deg,#e3f2fd 60%,#bbdefb 100%);
   border-radius: 18px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
@@ -103,21 +102,21 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
+  padding: 4px;
 }
 
 #crowd-blobs {
   display: grid;
   grid-template-columns: repeat(15, 1fr);
   grid-template-rows: repeat(15, 1fr);
-  gap: 1px;
+  gap: 0.5px; /* smaller gap for better fit */
   justify-items: center;
   align-items: center;
 }
 
 .crowd-blob {
-  width: 7px;
-  height: 7px;
+  width: 4px;  /* smaller circle to fit 15x15 grid */
+  height: 4px; /* smaller circle */
   border-radius: 50%;
 }
 
@@ -166,26 +165,20 @@ body {
     height: 235px;
   }
 
-  .info-row {
-    gap: 14px;
-  }
-
   #crowd-square {
-    width: 75px;
-    height: 75px;
-    border-radius: 14px;
+    width: 90px;
+    height: 90px;
   }
 
   .crowd-blob {
-    width: 6px;
-    height: 6px;
+    width: 3px;
+    height: 3px;
   }
 
   #route-saying {
     max-width: 180px;
     font-size: 0.95rem;
     padding: 12px 14px;
-    border-radius: 14px;
   }
 
   #crowd-caption {
@@ -221,44 +214,38 @@ const sayings = [
   "This way keeps you out of the densest parts of the crowd.",
   "Get there faster with a route that's 30% less crowded.",
   "Move more easily, this route is short and 15% less crowded.",
-  "Save time with a path that cuts through 40% less congestion"
+  "Save time with a path that cuts through 40% less congestion."
 ];
 document.getElementById("route-saying").textContent =
   sayings[Math.floor(Math.random() * sayings.length)];
 
 // ---- Heatmap generator from Python matrix
-async function renderHeatmap() {
-  const c = document.getElementById("crowd-blobs");
-  c.innerHTML = "";
-  
+async function generateHeatmap() {
   try {
-    const response = await fetch(`${API_URL}/get_matrix`, { 
-      headers: { "ngrok-skip-browser-warning": "true" } 
+    const response = await fetch(`${API_URL}/get_matrix`, {
+      method: "GET",
+      headers: { "ngrok-skip-browser-warning": "true" }
     });
     const data = await response.json();
-    const matrix = data.matrix; // 15x15 array
-    
-    c.style.gridTemplateColumns = `repeat(15, 1fr)`;
-    c.style.gridTemplateRows = `repeat(15, 1fr)`;
-
+    const matrix = data.matrix; // 15x15 matrix from Python
+    const c = document.getElementById("crowd-blobs");
+    c.innerHTML = "";
     for (let r = 0; r < 15; r++) {
       for (let col = 0; col < 15; col++) {
         const b = document.createElement("div");
         b.className = "crowd-blob";
         const val = matrix[r][col];
-        if (val === 0) b.style.background = "#66bb6a";       // green
-        else if (val === 1) b.style.background = "#ffeb3b";  // yellow
-        else b.style.background = "#ff5252";                 // red
+        if (val === 0) b.style.background = "#66bb6a"; // green
+        else if (val === 1) b.style.background = "#ffeb3b"; // yellow
+        else if (val > 1) b.style.background = "#ff5252"; // red
         c.appendChild(b);
       }
     }
-  } catch (err) {
-    console.error("Error fetching matrix:", err);
+  } catch(err) {
+    console.error("Failed to fetch matrix:", err);
   }
 }
-
-// Call once on load
-renderHeatmap();
+generateHeatmap();
 
 // ---- Compass logic
 const arrow = document.getElementById("arrow");
@@ -279,16 +266,17 @@ async function fetchNextAngle() {
       method: "GET",
       headers: { "ngrok-skip-browser-warning": "true" }
     });
-    
     const data = await response.json();
     console.log("Received angle from server:", data.angle);
-    
     if (data.angle > 360) {
+      console.log("All angles completed! Going to ending page.");
       setTimeout(() => location.href = "ending.html", 1000);
     } else {
       currentTargetAngle = data.angle;
     }
-  } catch (err) { console.error("Error fetching angle:", err); }
+  } catch (err) {
+    console.error("Error fetching angle:", err);
+  }
 }
 
 // Send tap to server and get next angle
@@ -305,7 +293,9 @@ async function registerTap() {
     const data = await response.json();
     console.log("Tap registered:", data);
     await fetchNextAngle();
-  } catch (err) { console.error("Error registering tap:", err); }
+  } catch (err) {
+    console.error("Error registering tap:", err);
+  }
 }
 
 enableButton.addEventListener("click", () => {
@@ -356,7 +346,12 @@ function updateArrowSmooth() {
 
 function handleTap() {
   if (!compassEnabled) return;
-  if (withinTarget) registerTap();
+  if (withinTarget) {
+    console.log("Tap registered - user is pointing in the right direction!");
+    registerTap();
+  } else {
+    console.log("Tap ignored - not pointing in the right direction");
+  }
 }
 </script>
 </body>
