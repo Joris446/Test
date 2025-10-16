@@ -108,8 +108,8 @@ body {
 
 #crowd-blobs {
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
-  grid-template-rows: repeat(9, 1fr);
+  grid-template-columns: repeat(15, 1fr);
+  grid-template-rows: repeat(15, 1fr);
   gap: 1px;
   justify-items: center;
   align-items: center;
@@ -221,26 +221,44 @@ const sayings = [
   "This way keeps you out of the densest parts of the crowd.",
   "Get there faster with a route that's 30% less crowded.",
   "Move more easily, this route is short and 15% less crowded.",
-  "Save time with a path that cuts through 40% less congestion."
+  "Save time with a path that cuts through 40% less congestion"
 ];
 document.getElementById("route-saying").textContent =
   sayings[Math.floor(Math.random() * sayings.length)];
 
-// ---- Heatmap generator
-(function(){
+// ---- Heatmap generator from Python matrix
+async function renderHeatmap() {
   const c = document.getElementById("crowd-blobs");
   c.innerHTML = "";
-  for (let r = 0; r < 9; r++) {
-    for (let col = 0; col < 9; col++) {
-      const b = document.createElement("div");
-      b.className = "crowd-blob";
-      const rnd = Math.random();
-      if (r < 3) b.style.background = "#ff5252";
-      else b.style.background = rnd < .4 ? "#ff5252" : rnd < .8 ? "#ffb74d" : "#66bb6a";
-      c.appendChild(b);
+  
+  try {
+    const response = await fetch(`${API_URL}/get_matrix`, { 
+      headers: { "ngrok-skip-browser-warning": "true" } 
+    });
+    const data = await response.json();
+    const matrix = data.matrix; // 15x15 array
+    
+    c.style.gridTemplateColumns = `repeat(15, 1fr)`;
+    c.style.gridTemplateRows = `repeat(15, 1fr)`;
+
+    for (let r = 0; r < 15; r++) {
+      for (let col = 0; col < 15; col++) {
+        const b = document.createElement("div");
+        b.className = "crowd-blob";
+        const val = matrix[r][col];
+        if (val === 0) b.style.background = "#66bb6a";       // green
+        else if (val === 1) b.style.background = "#ffeb3b";  // yellow
+        else b.style.background = "#ff5252";                 // red
+        c.appendChild(b);
+      }
     }
+  } catch (err) {
+    console.error("Error fetching matrix:", err);
   }
-})();
+}
+
+// Call once on load
+renderHeatmap();
 
 // ---- Compass logic
 const arrow = document.getElementById("arrow");
@@ -259,24 +277,18 @@ async function fetchNextAngle() {
   try {
     const response = await fetch(`${API_URL}/get_angle`, {
       method: "GET",
-      headers: {
-        "ngrok-skip-browser-warning": "true"
-      }
+      headers: { "ngrok-skip-browser-warning": "true" }
     });
     
     const data = await response.json();
     console.log("Received angle from server:", data.angle);
     
     if (data.angle > 360) {
-      // Finished! Go to ending page
-      console.log("All angles completed! Going to ending page.");
       setTimeout(() => location.href = "ending.html", 1000);
     } else {
       currentTargetAngle = data.angle;
     }
-  } catch (err) {
-    console.error("Error fetching angle:", err);
-  }
+  } catch (err) { console.error("Error fetching angle:", err); }
 }
 
 // Send tap to server and get next angle
@@ -290,55 +302,36 @@ async function registerTap() {
       },
       body: JSON.stringify({ tap: true })
     });
-    
     const data = await response.json();
     console.log("Tap registered:", data);
-    
-    // Fetch the next angle
     await fetchNextAngle();
-    
-  } catch (err) {
-    console.error("Error registering tap:", err);
-  }
+  } catch (err) { console.error("Error registering tap:", err); }
 }
 
 enableButton.addEventListener("click", () => {
   if (typeof DeviceOrientationEvent !== "undefined" &&
       typeof DeviceOrientationEvent.requestPermission === "function") {
     DeviceOrientationEvent.requestPermission().then(state => {
-      if (state === "granted") {
-        startCompass();
-      } else {
-        alert("Compass access denied");
-      }
+      if (state === "granted") startCompass();
+      else alert("Compass access denied");
     });
-  } else {
-    startCompass();
-  }
+  } else startCompass();
 });
 
 function startCompass() {
   enableButton.style.display = "none";
   compassEnabled = true;
-  
   window.addEventListener("deviceorientation", handleOrientation, true);
   requestAnimationFrame(updateArrowSmooth);
   document.body.addEventListener("click", handleTap);
-  
-  // Fetch the first angle
   fetchNextAngle();
 }
 
 function handleOrientation(e) {
   let heading;
-  if (e.webkitCompassHeading !== undefined) {
-    heading = e.webkitCompassHeading;
-  } else if (e.alpha != null) {
-    heading = 360 - e.alpha;
-  } else {
-    return;
-  }
-  
+  if (e.webkitCompassHeading !== undefined) heading = e.webkitCompassHeading;
+  else if (e.alpha != null) heading = 360 - e.alpha;
+  else return;
   if (smoothAlpha == null) smoothAlpha = heading;
   smoothAlpha = lerpAngle(smoothAlpha, heading, 0.15);
   currentHeading = smoothAlpha;
@@ -353,11 +346,8 @@ function updateArrowSmooth() {
   if (currentHeading != null && currentTargetAngle != null) {
     if (displayHeading == null) displayHeading = currentHeading;
     displayHeading = lerpAngle(displayHeading, currentHeading, 0.25);
-    
     const rot = currentTargetAngle - displayHeading;
     arrow.style.transform = `rotate(${rot}deg)`;
-
-    // Check if within tolerance
     const diff = Math.abs(((currentHeading - currentTargetAngle + 540) % 360) - 180);
     withinTarget = diff <= tolerance;
   }
@@ -366,13 +356,7 @@ function updateArrowSmooth() {
 
 function handleTap() {
   if (!compassEnabled) return;
-  
-  if (withinTarget) {
-    console.log("Tap registered - user is pointing in the right direction!");
-    registerTap();
-  } else {
-    console.log("Tap ignored - not pointing in the right direction");
-  }
+  if (withinTarget) registerTap();
 }
 </script>
 </body>
