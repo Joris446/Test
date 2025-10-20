@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Direction Challenge</title>
 <style>
 /* ========== GENERAL LAYOUT ========== */
@@ -103,9 +103,12 @@ body {
   align-items: center;
   justify-content: center;
   padding: 4px;
+  position: relative; /* needed for overlay */
 }
 
 #crowd-blobs {
+  width: 100%;
+  height: 100%;
   display: grid;
   grid-template-columns: repeat(15, 1fr);
   grid-template-rows: repeat(15, 1fr);
@@ -114,9 +117,23 @@ body {
   align-items: center;
 }
 
+/* Path overlay (SVG on top of blobs) */
+#grid-path {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+#grid-path polyline, #grid-path circle {
+  stroke: #000; stroke-width: 2; fill: none;
+}
+#grid-path circle.start { fill: #2ecc71; stroke: none; }
+#grid-path circle.goal  { fill: #e74c3c; stroke: none; }
+
 .crowd-blob {
-  width: 4px;  /* smaller circle to fit 15x15 grid */
-  height: 4px; /* smaller circle */
+  width: 4px;  /* small circle to fit 15x15 grid */
+  height: 4px; /* small circle */
   border-radius: 50%;
 }
 
@@ -199,14 +216,19 @@ body {
 
   <div class="info-row">
     <div id="crowd-container">
-      <div id="crowd-square"><div id="crowd-blobs"></div></div>
+      <div id="crowd-square">
+        <div id="crowd-blobs"></div>
+        <!-- overlay for path line -->
+        <svg id="grid-path" viewBox="0 0 300 300" preserveAspectRatio="none"></svg>
+      </div>
       <div id="crowd-caption">heatmap of the crowd</div>
     </div>
     <div id="route-saying"></div>
   </div>
 
 <script>
-const API_URL = "https://acidy-uncensured-lashawn.ngrok-free.dev/";
+const API_URL = "https://acidy-uncensured-lashawn.ngrok-free.dev/"; // update each ngrok session
+const rows = 15, cols = 15;
 
 // ---- Route sayings
 const sayings = [
@@ -222,7 +244,7 @@ document.getElementById("route-saying").textContent =
 // ---- Heatmap generator from Python matrix
 async function generateHeatmap() {
   try {
-    const response = await fetch(`${API_URL}/get_matrix`, {
+    const response = await fetch(`${API_URL}get_matrix`, {
       method: "GET",
       headers: { "ngrok-skip-browser-warning": "true" }
     });
@@ -230,14 +252,14 @@ async function generateHeatmap() {
     const matrix = data.matrix; // 15x15 matrix from Python
     const c = document.getElementById("crowd-blobs");
     c.innerHTML = "";
-    for (let r = 0; r < 15; r++) {
-      for (let col = 0; col < 15; col++) {
+    for (let r = 0; r < rows; r++) {
+      for (let col = 0; col < cols; col++) {
         const b = document.createElement("div");
         b.className = "crowd-blob";
         const val = matrix[r][col];
-        if (val === 0) b.style.background = "#66bb6a"; // green
+        if (val === 0) b.style.background = "#66bb6a";     // green
         else if (val === 1) b.style.background = "#ffeb3b"; // yellow
-        else if (val > 1) b.style.background = "#ff5252"; // red
+        else if (val > 1) b.style.background = "#ff5252";   // red
         c.appendChild(b);
       }
     }
@@ -247,7 +269,69 @@ async function generateHeatmap() {
 }
 generateHeatmap();
 
-// ---- Compass logic
+// ====== PATH OVERLAY ======
+let pathRC = null; // [[row, col], ...]
+
+async function primeRouteAndGetPath(targetName = "Stage") {
+  try {
+    const resp = await fetch(`${API_URL}send_location`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+      body: JSON.stringify({ location: { name: targetName } })
+    });
+    const data = await resp.json();
+    if (data.status === "ok" && Array.isArray(data.path)) {
+      pathRC = data.path;
+      drawPathOnHeatmap(pathRC);
+      console.log("Got path steps:", pathRC.length);
+    } else {
+      console.warn("send_location failed:", data);
+    }
+  } catch (e) {
+    console.error("Error priming route:", e);
+  }
+}
+
+function drawPathOnHeatmap(path) {
+  const svg = document.getElementById("grid-path");
+  if (!svg) return;
+  svg.innerHTML = "";
+  if (!path || path.length < 2) return;
+
+  // SVG coordinates (viewBox 300x300)
+  const W = 300, H = 300;
+  const cellW = W / cols, cellH = H / rows;
+
+  const pts = path.map(([r, c]) => {
+    const x = (c + 0.5) * cellW;
+    const y = (r + 0.5) * cellH;
+    return `${x},${y}`;
+  }).join(" ");
+
+  const poly = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+  poly.setAttribute("points", pts);
+  poly.setAttribute("stroke", "#000");
+  poly.setAttribute("stroke-width", "2");
+  poly.setAttribute("fill", "none");
+  svg.appendChild(poly);
+
+  // Start/goal markers
+  const mk = (r, c, cls) => {
+    const cx = (c + 0.5) * cellW;
+    const cy = (r + 0.5) * cellH;
+    const circ = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circ.setAttribute("cx", cx);
+    circ.setAttribute("cy", cy);
+    circ.setAttribute("r", Math.max(3, Math.min(cellW, cellH) * 0.25));
+    circ.setAttribute("class", cls);
+    svg.appendChild(circ);
+  };
+  mk(path[0][0], path[0][1], "start");
+  const last = path[path.length - 1];
+  mk(last[0], last[1], "goal");
+}
+
+// ====== COMPASS LOGIC ======
 const arrow = document.getElementById("arrow");
 const enableButton = document.getElementById("enable-compass");
 const statusText = document.getElementById("status-text");
@@ -259,20 +343,20 @@ const tolerance = 7;
 let withinTarget = false;
 let compassEnabled = false;
 
-// Fetch the first angle from the server
+// Fetch the current angle from the server
 async function fetchNextAngle() {
   try {
-    const response = await fetch(`${API_URL}/get_angle`, {
+    const response = await fetch(`${API_URL}get_angle`, {
       method: "GET",
       headers: { "ngrok-skip-browser-warning": "true" }
     });
     const data = await response.json();
     console.log("Received angle from server:", data.angle);
-    if (data.angle > 360) {
+    if (Number(data.angle) === 999) {
       console.log("All angles completed! Going to ending page.");
       setTimeout(() => location.href = "ending.html", 1000);
     } else {
-      currentTargetAngle = data.angle;
+      currentTargetAngle = Number(data.angle);
     }
   } catch (err) {
     console.error("Error fetching angle:", err);
@@ -282,7 +366,7 @@ async function fetchNextAngle() {
 // Send tap to server and get next angle
 async function registerTap() {
   try {
-    const response = await fetch(`${API_URL}/tap`, {
+    const response = await fetch(`${API_URL}tap`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -314,7 +398,15 @@ function startCompass() {
   window.addEventListener("deviceorientation", handleOrientation, true);
   requestAnimationFrame(updateArrowSmooth);
   document.body.addEventListener("click", handleTap);
-  fetchNextAngle();
+
+  // Prime route once (also gives us the full path to draw)
+  primeRouteAndGetPath("Stage").then(() => {
+    // After priming, start the angle sequence
+    fetchNextAngle();
+  });
+
+  // Optionally refresh heatmap periodically
+  // setInterval(generateHeatmap, 1000);
 }
 
 function handleOrientation(e) {
@@ -356,5 +448,3 @@ function handleTap() {
 </script>
 </body>
 </html>
-
-
