@@ -16,36 +16,25 @@ body {
   flex-direction: column;
   align-items: center;
 }
-#arrow-title { font-size: 2rem; color: #0044aa; font-weight: 700; margin-top: 40px; margin-bottom: 20px; padding: 0 16px; box-sizing: border-box; }
-#enable-compass { background: #1976d2; color: #fff; border: none; border-radius: 12px; padding: 12px 24px; font-size: 1.1rem; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,.15); margin-bottom: 20px; transition: all .2s ease-in-out; }
-#enable-compass:hover { background: #0d47a1; box-shadow: 0 6px 12px rgba(0,0,0,.2); }
-#arrow-container { width: 300px; height: 300px; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg,#e3f2fd 60%,#bbdefb 100%); border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+#arrow-title { font-size: 2rem; color: #0044aa; font-weight: 700; margin-top: 40px; margin-bottom: 20px; }
+#enable-compass { background: #1976d2; color: #fff; border: none; border-radius: 12px; padding: 12px 24px; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-bottom: 20px; }
+#arrow-container { width: 300px; height: 300px; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg,#e3f2fd 60%,#bbdefb 100%); border-radius: 50%; margin-bottom: 20px; }
 #arrow { width: 250px; height: 250px; transform-origin: 50% 50%; }
 #arrow-shape { fill: #1976d2; stroke: #0d47a1; stroke-width: 2; }
-#status-text { display: none; }
 .info-row { display: flex; align-items: flex-start; justify-content: center; gap: 20px; flex-wrap: wrap; }
 #crowd-container { display: flex; flex-direction: column; align-items: center; }
-#crowd-square { width: 120px; height: 120px; background: linear-gradient(135deg,#e3f2fd 60%,#bbdefb 100%); border-radius: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); border: 1px solid #e0ecff; display: flex; align-items: center; justify-content: center; padding: 4px; position: relative; }
+#crowd-square { width: 120px; height: 120px; background: linear-gradient(135deg,#e3f2fd 60%,#bbdefb 100%); border-radius: 18px; display: flex; align-items: center; justify-content: center; position: relative; }
 #crowd-blobs { width: 100%; height: 100%; display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr); gap: 0.5px; justify-items: center; align-items: center; }
 #grid-path { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 #grid-path polyline, #grid-path circle { stroke: #000; stroke-width: 2; fill: none; }
 #grid-path circle.start { fill: #2ecc71; stroke: none; }
 #grid-path circle.goal  { fill: #e74c3c; stroke: none; }
 .crowd-blob { width: 4px; height: 4px; border-radius: 50%; }
-#crowd-caption { font-size: 0.8rem; color: #1976d2; margin-top: 6px; opacity: 0.9; }
-#route-saying { max-width: 240px; min-height: 70px; background: linear-gradient(135deg,#e3f2fd 60%,#bbdefb 100%); border-radius: 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); border: 1px solid #e0ecff; display: flex; align-items: center; justify-content: center; font-size: 1.05em; color: #1976d2; font-weight: 500; padding: 16px 18px; text-align: center; }
-@media (max-width: 600px) {
-  #arrow-title { font-size: 1.6rem; margin-top: 24px; margin-bottom: 16px; padding: 0 20px; }
-  #arrow-container { width: 260px; height: 260px; margin-bottom: 20px; }
-  #arrow { width: 235px; height: 235px; }
-  #crowd-square { width: 90px; height: 90px; }
-  .crowd-blob { width: 4px; height: 4px; }
-  #route-saying { max-width: 180px; font-size: 0.95rem; padding: 12px 14px; }
-  #crowd-caption { font-size: 0.75rem; }
-}
+#route-saying { max-width: 240px; min-height: 70px; background: linear-gradient(135deg,#e3f2fd 60%,#bbdefb 100%); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.05em; color: #1976d2; font-weight: 500; padding: 16px 18px; text-align: center; }
 </style>
 </head>
 <body>
+
 <h1 id="arrow-title">Walk into the direction of the arrow</h1>
 <button id="enable-compass">Enable Compass</button>
 <div id="arrow-container">
@@ -53,7 +42,6 @@ body {
     <polygon id="arrow-shape" points="60,15 100,100 60,75 20,100" />
   </svg>
 </div>
-<div id="status-text">Waiting for compass...</div>
 
 <div class="info-row">
   <div id="crowd-container">
@@ -61,7 +49,6 @@ body {
       <div id="crowd-blobs"></div>
       <svg id="grid-path" viewBox="0 0 300 300" preserveAspectRatio="none"></svg>
     </div>
-    <div id="crowd-caption">heatmap of the crowd</div>
   </div>
   <div id="route-saying"></div>
 </div>
@@ -70,242 +57,166 @@ body {
 const API_URL = "https://acidy-uncensured-lashawn.ngrok-free.dev/";
 const rows = 15, cols = 15;
 
-// ---- Route sayings
-const sayings = [
-  "We picked this route because it avoids the busiest areas.",
-  "This way keeps you out of the densest parts of the crowd.",
-  "Get there faster with a route that's 30% less crowded.",
-  "Move more easily, this route is short and 15% less crowded.",
-  "Save time with a path that cuts through 40% less congestion."
-];
-document.getElementById("route-saying").textContent =
-  sayings[Math.floor(Math.random() * sayings.length)];
-
-// ---- Heatmap
+// ---- Heatmap ----
 async function generateHeatmap() {
   try {
-    const response = await fetch(`${API_URL}get_matrix`, {
-      method: "GET",
-      headers: { "ngrok-skip-browser-warning": "true" }
-    });
-    const data = await response.json();
+    const resp = await fetch(`${API_URL}get_matrix`);
+    const data = await resp.json();
     const matrix = data.matrix;
-    const c = document.getElementById("crowd-blobs");
-    c.innerHTML = "";
+    const container = document.getElementById("crowd-blobs");
+    container.innerHTML = "";
     for (let r = 0; r < rows; r++) {
-      for (let col = 0; col < cols; col++) {
+      for (let c = 0; c < cols; c++) {
         const b = document.createElement("div");
         b.className = "crowd-blob";
-        const val = matrix[r][col];
+        const val = matrix[r][c];
         if (val === 0) b.style.background = "#66bb6a";
         else if (val === 1) b.style.background = "#ffeb3b";
-        else if (val > 1) b.style.background = "#ff5252";
-        c.appendChild(b);
+        else b.style.background = "#ff5252";
+        container.appendChild(b);
       }
     }
-  } catch(err) {
-    console.error("Failed to fetch matrix:", err);
-  }
+  } catch(e) { console.error(e); }
 }
 generateHeatmap();
 
-// ====== PATH OVERLAY ======
-let pathRC = null;
-
-// ---- robust target retrieval ----
-function getTargetFromContext() {
-  const qs = new URLSearchParams(window.location.search);
-  const candidates = [
-    qs.get("target"),
-    qs.get("location"),
-    qs.get("dest"),
-    qs.get("to"),
-  ];
-  if (!candidates.some(Boolean)) {
+// ---- Target retrieval (URL param or hash) ----
+function getTarget() {
+  const urlParams = new URLSearchParams(window.location.search);
+  let target = urlParams.get("target") || urlParams.get("location") || urlParams.get("dest") || urlParams.get("to");
+  if (!target) {
     const hash = window.location.hash?.replace(/^#/, "");
-    try {
-      if (hash?.startsWith("{")) {
-        const parsed = JSON.parse(decodeURIComponent(hash));
-        candidates.push(parsed.target || parsed.location || parsed.dest || parsed.to);
-      } else if (hash?.includes("=")) {
-        const hqs = new URLSearchParams(hash);
-        candidates.push(hqs.get("target") || hqs.get("location") || hqs.get("dest") || hqs.get("to"));
-      }
-    } catch {}
+    if (hash) target = decodeURIComponent(hash);
   }
-  const raw = candidates.find(v => v && String(v).trim().length > 0);
-  if (!raw) return null;
-  return String(raw).trim().replace(/\s+/g, " ");
+  if (!target) return null;
+  return target.trim();
 }
-const chosenTarget = getTargetFromContext();
-if (!chosenTarget) {
-  console.warn("[route] No target provided via URL/hash; NOT falling back silently.");
-}
+const chosenTarget = getTarget();
 
-// ---- path + send_location ----
+// ---- Route + draw path ----
+let pathRC = null;
 async function primeRouteAndGetPath(targetName) {
-  if (!targetName) {
-    document.getElementById("route-saying").textContent = "Pick a destination in the app.";
-    return;
-  }
+  if (!targetName) return;
+  // Map input to exact LOCATION_COORDS key
+  const locationMap = {
+    "stage": "Stage",
+    "bar 1": "Bar 1",
+    "bar 2": "Bar 2",
+    "entrance/exit": "Entrance/Exit",
+    "foodtruck": "Foodtruck"
+  };
+  const mappedName = locationMap[targetName.toLowerCase()] || targetName;
+
   try {
-    console.log("[route] sending target to server:", targetName);
     const resp = await fetch(`${API_URL}send_location`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true"
-      },
-      body: JSON.stringify({
-        location: { name: targetName },
-        normalized: targetName.toLowerCase()
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ location: { name: mappedName } })
     });
-
-    if (!resp.ok) {
-      console.error("[route] send_location HTTP error:", resp.status, await resp.text());
-      document.getElementById("route-saying").textContent = "Couldn’t set destination (network).";
-      return;
-    }
-
     const data = await resp.json();
-    console.log("[route] server reply:", data);
-
     if (data.status !== "ok") {
       document.getElementById("route-saying").textContent = data.message || "Destination not recognized.";
       return;
     }
-    if (data.used_location && data.used_location !== targetName) {
-      console.warn(`[route] Server mapped '${targetName}' -> '${data.used_location}'`);
-    }
-
     if (Array.isArray(data.path)) {
       pathRC = data.path;
-      drawPathOnHeatmap(pathRC);
-      console.log("Got path steps:", pathRC.length);
-      await fetchNextAngle();
-    } else {
-      console.warn("[route] No path array in response.");
-      document.getElementById("route-saying").textContent = "No path available for that destination.";
+      drawPath(pathRC);
     }
-  } catch (e) {
-    console.error("Error priming route:", e);
-    document.getElementById("route-saying").textContent = "Error contacting server.";
-  }
+  } catch(e) { console.error(e); }
 }
 
-function drawPathOnHeatmap(path) {
+function drawPath(path) {
   const svg = document.getElementById("grid-path");
-  if (!svg) return;
   svg.innerHTML = "";
   if (!path || path.length < 2) return;
-
   const W = 300, H = 300;
   const cellW = W / cols, cellH = H / rows;
-
-  const pts = path.map(([r, c]) => {
-    const x = c * cellW + cellW/2;
-    const y = r * cellH + cellH/2;
-    return `${x},${y}`;
-  }).join(" ");
+  const points = path.map(([r,c]) => (c+0.5)*cellW + "," + (r+0.5)*cellH).join(" ");
 
   const poly = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
-  poly.setAttribute("points", pts);
+  poly.setAttribute("points", points);
   poly.setAttribute("stroke", "#000");
   poly.setAttribute("stroke-width", "2");
   poly.setAttribute("fill", "none");
   svg.appendChild(poly);
 
-  const mk = (r, c, cls) => {
-    const cx = c * cellW + cellW/2;
-    const cy = r * cellH + cellH/2;
+  const mk = (r,c,cls) => {
     const circ = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    circ.setAttribute("cx", cx);
-    circ.setAttribute("cy", cy);
-    circ.setAttribute("r", Math.max(3, Math.min(cellW, cellH) * 0.25));
+    circ.setAttribute("cx", (c+0.5)*cellW);
+    circ.setAttribute("cy", (r+0.5)*cellH);
+    circ.setAttribute("r", Math.max(3, Math.min(cellW,cellH)*0.25));
     circ.setAttribute("class", cls);
     svg.appendChild(circ);
   };
   mk(path[0][0], path[0][1], "start");
-  const last = path[path.length - 1];
+  const last = path[path.length-1];
   mk(last[0], last[1], "goal");
 }
 
-// ====== COMPASS LOGIC ======
+// ---- Compass logic ----
 const arrow = document.getElementById("arrow");
 const enableButton = document.getElementById("enable-compass");
-let currentTargetAngle = null, currentHeading = null, displayHeading = null, smoothAlpha = null;
+let currentHeading=null, displayHeading=null, currentTargetAngle=null, smoothAlpha=null;
 const tolerance = 7;
-let withinTarget = false, compassEnabled = false;
+let withinTarget=false, compassEnabled=false;
 
 async function fetchNextAngle() {
-  try {
-    const response = await fetch(`${API_URL}get_angle`, { method: "GET", headers: { "ngrok-skip-browser-warning": "true" }});
-    const data = await response.json();
-    if (Number(data.angle) === 999) {
-      setTimeout(() => location.href = "ending.html", 1000);
-    } else currentTargetAngle = Number(data.angle);
-  } catch (err) { console.error("Error fetching angle:", err); }
+  const resp = await fetch(`${API_URL}get_angle`);
+  const data = await resp.json();
+  if (Number(data.angle) === 999) {
+    setTimeout(()=>location.href="ending.html",1000);
+  } else currentTargetAngle = Number(data.angle);
 }
 
 async function registerTap() {
-  try {
-    const response = await fetch(`${API_URL}tap`, { method: "POST", headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" }, body: JSON.stringify({ tap: true })});
-    const data = await response.json();
-    await fetchNextAngle();
-  } catch (err) { console.error("Error registering tap:", err); }
+  await fetch(`${API_URL}tap`, {method:"POST", headers: {"Content-Type":"application/json"}, body:JSON.stringify({tap:true})});
+  await fetchNextAngle();
 }
 
-enableButton.addEventListener("click", () => {
-  if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
-    DeviceOrientationEvent.requestPermission().then(state => {
-      if (state === "granted") startCompass();
-      else alert("Compass access denied");
-    });
+enableButton.addEventListener("click", ()=>{
+  if(typeof DeviceOrientationEvent!=="undefined" && typeof DeviceOrientationEvent.requestPermission==="function"){
+    DeviceOrientationEvent.requestPermission().then(state=>{if(state==="granted") startCompass(); else alert("Compass access denied");});
   } else startCompass();
 });
 
-function startCompass() {
-  enableButton.style.display = "none";
-  compassEnabled = true;
-  window.addEventListener("deviceorientation", handleOrientation, true);
+function startCompass(){
+  enableButton.style.display="none";
+  compassEnabled=true;
+  window.addEventListener("deviceorientation",handleOrientation,true);
   requestAnimationFrame(updateArrowSmooth);
-  document.body.addEventListener("click", handleTap);
+  document.body.addEventListener("click",handleTap);
 
-  primeRouteAndGetPath(chosenTarget);
+  if(chosenTarget) primeRouteAndGetPath(chosenTarget);
 }
 
-function handleOrientation(e) {
+function handleOrientation(e){
   let heading;
-  if (e.webkitCompassHeading !== undefined) heading = e.webkitCompassHeading;
-  else if (e.alpha != null) heading = 360 - e.alpha;
+  if(e.webkitCompassHeading!==undefined) heading=e.webkitCompassHeading;
+  else if(e.alpha!=null) heading=360-e.alpha;
   else return;
-  if (smoothAlpha == null) smoothAlpha = heading;
-  smoothAlpha = lerpAngle(smoothAlpha, heading, 0.15);
-  currentHeading = smoothAlpha;
+  if(smoothAlpha==null) smoothAlpha=heading;
+  smoothAlpha=lerpAngle(smoothAlpha,heading,0.15);
+  currentHeading=smoothAlpha;
 }
 
-function lerpAngle(a, b, t) {
-  let diff = ((b - a + 540) % 360) - 180;
-  return (a + diff * t + 360) % 360;
+function lerpAngle(a,b,t){
+  let diff=((b-a+540)%360)-180;
+  return (a+diff*t+360)%360;
 }
 
-function updateArrowSmooth() {
-  if (currentHeading != null && currentTargetAngle != null) {
-    if (displayHeading == null) displayHeading = currentHeading;
-    displayHeading = lerpAngle(displayHeading, currentHeading, 0.25);
-    const rot = currentTargetAngle - displayHeading;
-    arrow.style.transform = `rotate(${rot}deg)`;
-    const diff = Math.abs(((currentHeading - currentTargetAngle + 540) % 360) - 180);
-    withinTarget = diff <= tolerance;
+function updateArrowSmooth(){
+  if(currentHeading!=null && currentTargetAngle!=null){
+    if(displayHeading==null) displayHeading=currentHeading;
+    displayHeading=lerpAngle(displayHeading,currentHeading,0.25);
+    const rot=currentTargetAngle-displayHeading;
+    arrow.style.transform=`rotate(${rot}deg)`;
+    const diff=Math.abs(((currentHeading-currentTargetAngle+540)%360)-180);
+    withinTarget=diff<=tolerance;
   }
   requestAnimationFrame(updateArrowSmooth);
 }
 
-function handleTap() {
-  if (!compassEnabled) return;
-  if (withinTarget) registerTap();
-}
+function handleTap(){if(compassEnabled && withinTarget) registerTap();}
 </script>
 </body>
 </html>
