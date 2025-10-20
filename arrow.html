@@ -114,7 +114,7 @@ let pathRC = null;
 
 // Get target from URL param
 const urlParams = new URLSearchParams(window.location.search);
-const targetLocation = urlParams.get("target") || "Bar1";
+const targetLocation = urlParams.get("target") || "Bar 1";
 
 async function primeRouteAndGetPath(targetName) {
   try {
@@ -253,4 +253,5 @@ function handleTap() {
 </script>
 </body>
 </html>
+
 
