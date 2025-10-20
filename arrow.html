@@ -112,27 +112,85 @@ generateHeatmap();
 // ====== PATH OVERLAY ======
 let pathRC = null;
 
-// Get target from URL param
-const urlParams = new URLSearchParams(window.location.search);
-const targetLocation = urlParams.get("target") || "Bar 1";
+// ---- robust target retrieval ----
+function getTargetFromContext() {
+  const qs = new URLSearchParams(window.location.search);
+  const candidates = [
+    qs.get("target"),
+    qs.get("location"),
+    qs.get("dest"),
+    qs.get("to"),
+  ];
+  if (!candidates.some(Boolean)) {
+    const hash = window.location.hash?.replace(/^#/, "");
+    try {
+      if (hash?.startsWith("{")) {
+        const parsed = JSON.parse(decodeURIComponent(hash));
+        candidates.push(parsed.target || parsed.location || parsed.dest || parsed.to);
+      } else if (hash?.includes("=")) {
+        const hqs = new URLSearchParams(hash);
+        candidates.push(hqs.get("target") || hqs.get("location") || hqs.get("dest") || hqs.get("to"));
+      }
+    } catch {}
+  }
+  const raw = candidates.find(v => v && String(v).trim().length > 0);
+  if (!raw) return null;
+  return String(raw).trim().replace(/\s+/g, " ");
+}
+const chosenTarget = getTargetFromContext();
+if (!chosenTarget) {
+  console.warn("[route] No target provided via URL/hash; NOT falling back silently.");
+}
 
+// ---- path + send_location ----
 async function primeRouteAndGetPath(targetName) {
+  if (!targetName) {
+    document.getElementById("route-saying").textContent = "Pick a destination in the app.";
+    return;
+  }
   try {
+    console.log("[route] sending target to server:", targetName);
     const resp = await fetch(`${API_URL}send_location`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
-      body: JSON.stringify({ location: { name: targetName } })
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true"
+      },
+      body: JSON.stringify({
+        location: { name: targetName },
+        normalized: targetName.toLowerCase()
+      })
     });
+
+    if (!resp.ok) {
+      console.error("[route] send_location HTTP error:", resp.status, await resp.text());
+      document.getElementById("route-saying").textContent = "Couldn’t set destination (network).";
+      return;
+    }
+
     const data = await resp.json();
-    if (data.status === "ok" && Array.isArray(data.path)) {
+    console.log("[route] server reply:", data);
+
+    if (data.status !== "ok") {
+      document.getElementById("route-saying").textContent = data.message || "Destination not recognized.";
+      return;
+    }
+    if (data.used_location && data.used_location !== targetName) {
+      console.warn(`[route] Server mapped '${targetName}' -> '${data.used_location}'`);
+    }
+
+    if (Array.isArray(data.path)) {
       pathRC = data.path;
       drawPathOnHeatmap(pathRC);
       console.log("Got path steps:", pathRC.length);
+      await fetchNextAngle();
     } else {
-      console.warn("send_location failed:", data);
+      console.warn("[route] No path array in response.");
+      document.getElementById("route-saying").textContent = "No path available for that destination.";
     }
   } catch (e) {
     console.error("Error priming route:", e);
+    document.getElementById("route-saying").textContent = "Error contacting server.";
   }
 }
 
@@ -145,7 +203,6 @@ function drawPathOnHeatmap(path) {
   const W = 300, H = 300;
   const cellW = W / cols, cellH = H / rows;
 
-  // **Exact center of each cell**
   const pts = path.map(([r, c]) => {
     const x = c * cellW + cellW/2;
     const y = r * cellH + cellH/2;
@@ -159,7 +216,6 @@ function drawPathOnHeatmap(path) {
   poly.setAttribute("fill", "none");
   svg.appendChild(poly);
 
-  // Start/goal markers
   const mk = (r, c, cls) => {
     const cx = c * cellW + cellW/2;
     const cy = r * cellH + cellH/2;
@@ -216,7 +272,7 @@ function startCompass() {
   requestAnimationFrame(updateArrowSmooth);
   document.body.addEventListener("click", handleTap);
 
-  primeRouteAndGetPath(targetLocation).then(() => { fetchNextAngle(); });
+  primeRouteAndGetPath(chosenTarget);
 }
 
 function handleOrientation(e) {
@@ -253,5 +309,3 @@ function handleTap() {
 </script>
 </body>
 </html>
-
-
