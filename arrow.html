@@ -197,13 +197,17 @@ body {
   </div>
   <div id="status-text">Waiting for compass...</div>
 
-  <div class="info-row">
+ <div class="info-row">
     <div id="crowd-container">
-      <div id="crowd-square"><div id="crowd-blobs"></div></div>
+      <div id="crowd-square" style="position: relative;">
+        <div id="crowd-blobs"></div>
+        <canvas id="path-canvas" width="120" height="120" style="position:absolute; pointer-events:none;"></canvas>
+      </div>
       <div id="crowd-caption">heatmap of the crowd</div>
     </div>
     <div id="route-saying"></div>
   </div>
+
 
 <script>
 const API_URL = "https://acidy-uncensured-lashawn.ngrok-free.dev/";
@@ -222,29 +226,52 @@ document.getElementById("route-saying").textContent =
 // ---- Heatmap generator from Python matrix
 async function generateHeatmap() {
   try {
-    const response = await fetch(${API_URL}/get_matrix, {
+    const response = await fetch(`${API_URL}/get_matrix`, {
       method: "GET",
       headers: { "ngrok-skip-browser-warning": "true" }
     });
     const data = await response.json();
-    const matrix = data.matrix; // 15x15 matrix from Python
+    const matrix = data.matrix;
+    const path = data.path || [];
+
     const c = document.getElementById("crowd-blobs");
     c.innerHTML = "";
+
     for (let r = 0; r < 15; r++) {
       for (let col = 0; col < 15; col++) {
         const b = document.createElement("div");
         b.className = "crowd-blob";
         const val = matrix[r][col];
-        if (val === 0) b.style.background = "#66bb6a"; // green
-        else if (val === 1) b.style.background = "#ffeb3b"; // yellow
-        else if (val > 1) b.style.background = "#ff5252"; // red
+        if (val === 0) b.style.background = "#66bb6a";
+        else if (val === 1) b.style.background = "#ffeb3b";
+        else if (val > 1) b.style.background = "#ff5252";
         c.appendChild(b);
       }
     }
-  } catch(err) {
+
+    // Draw path on canvas
+    const canvas = document.getElementById("path-canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+
+    const scale = canvas.width / 15;
+    path.forEach(([r, c], i) => {
+      const x = c * scale + scale / 2;
+      const y = r * scale + scale / 2;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+
+    ctx.stroke();
+
+  } catch (err) {
     console.error("Failed to fetch matrix:", err);
   }
 }
+
 generateHeatmap();
 
 // ---- Compass logic
@@ -356,3 +383,4 @@ function handleTap() {
 </script>
 </body>
 </html>
+
