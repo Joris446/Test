@@ -292,7 +292,7 @@ async function drawPath() {
       const [startRow, startCol] = data.path[0];
       const startX = startCol * cellWidth + cellWidth / 2;
       const startY = startRow * cellHeight + cellHeight / 2;
-      const size = 6; // smaller square
+      const size = 5; // smaller square
       ctx.fillStyle = "#000000";
       ctx.strokeStyle = "#000000";
       ctx.lineWidth = 1.5;
@@ -463,4 +463,5 @@ function handleTap() {
 </script>
 </body>
 </html>
+
 
