@@ -421,13 +421,19 @@ function startCompass() {
 
 function handleOrientation(e) {
   let heading;
-  if (e.webkitCompassHeading !== undefined) heading = e.webkitCompassHeading;
-  else if (e.alpha != null) heading = 360 - e.alpha;
-  else return;
+  if (e.webkitCompassHeading !== undefined) {
+    // iPhone gives 0° = North → flip so 0° = South
+    heading = (e.webkitCompassHeading + 180) % 360;
+  } else if (e.alpha != null) {
+    // Android or other browsers: alpha = 0° when facing North → flip it too
+    heading = (360 - e.alpha + 180) % 360;
+  } else return;
+
   if (smoothAlpha == null) smoothAlpha = heading;
   smoothAlpha = lerpAngle(smoothAlpha, heading, 0.15);
   currentHeading = smoothAlpha;
 }
+
 
 function lerpAngle(a, b, t) {
   let diff = ((b - a + 540) % 360) - 180;
@@ -459,6 +465,7 @@ function handleTap() {
 
 </body>
 </html>
+
 
 
 
