@@ -261,22 +261,23 @@ async function drawPath() {
     const canvasWidth = rect.width;
     const canvasHeight = rect.height;
     
-    // Set canvas internal resolution to match display size
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
+    // Set canvas internal resolution to match display size for crisp rendering
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvasWidth * dpr;
+    canvas.height = canvasHeight * dpr;
+    ctx.scale(dpr, dpr);
     
     // Clear canvas
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     
-    // The grid has 15 cells, but the circles are positioned with gaps
-    // We need to calculate the actual center positions of the circles
+    // The grid is 15x15, Python uses (row, col) where (0,0) is top-left
     const gridSize = 15;
     const cellWidth = canvasWidth / gridSize;
     const cellHeight = canvasHeight / gridSize;
     
-    // Draw the path line
-    ctx.strokeStyle = "#1976d2";
-    ctx.lineWidth = 2;
+    // Draw the path line (BLACK)
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = 2.5;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     
@@ -284,7 +285,8 @@ async function drawPath() {
     
     data.path.forEach((point, index) => {
       const [row, col] = point;
-      // Calculate exact center of each cell to match blob positions
+      // Calculate exact center of each cell
+      // Python: (0,0) = top-left, (14,14) = bottom-right
       const x = col * cellWidth + cellWidth / 2;
       const y = row * cellHeight + cellHeight / 2;
       
@@ -297,22 +299,22 @@ async function drawPath() {
     
     ctx.stroke();
     
-    // Draw start point (green circle)
+    // Draw start point (BLACK circle)
     if (data.path.length > 0) {
       const [startRow, startCol] = data.path[0];
       const startX = startCol * cellWidth + cellWidth / 2;
       const startY = startRow * cellHeight + cellHeight / 2;
       
-      ctx.fillStyle = "#66bb6a";
-      ctx.strokeStyle = "#4caf50";
+      ctx.fillStyle = "#000000";
+      ctx.strokeStyle = "#000000";
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(startX, startY, 3.5, 0, Math.PI * 2);
+      ctx.arc(startX, startY, 4, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
     }
     
-    // Draw end point (red circle)
+    // Draw end point (RED circle)
     if (data.path.length > 1) {
       const [endRow, endCol] = data.path[data.path.length - 1];
       const endX = endCol * cellWidth + cellWidth / 2;
@@ -322,12 +324,14 @@ async function drawPath() {
       ctx.strokeStyle = "#f44336";
       ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(endX, endY, 3.5, 0, Math.PI * 2);
+      ctx.arc(endX, endY, 4, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
     }
     
     console.log("Path drawn:", data.path);
+    console.log("Canvas dimensions:", canvasWidth, "x", canvasHeight);
+    console.log("Cell size:", cellWidth, "x", cellHeight);
   } catch(err) {
     console.error("Failed to fetch and draw path:", err);
   }
