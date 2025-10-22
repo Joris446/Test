@@ -127,8 +127,8 @@ body {
   position: absolute;
   top: 4px;
   left: 4px;
-  width: 120px;
-  height: 120px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
   pointer-events: none;
 }
 
@@ -188,8 +188,8 @@ body {
   }
 
   #path-canvas {
-    width: 90px;
-    height: 90px;
+    width: calc(100% - 8px);
+    height: calc(100% - 8px);
   }
 
   #route-saying {
@@ -218,7 +218,7 @@ body {
     <div id="crowd-container">
       <div id="crowd-square">
         <div id="crowd-blobs"></div>
-        <canvas id="path-canvas" width="120" height="120"></canvas>
+        <canvas id="path-canvas"></canvas>
       </div>
       <div id="crowd-caption">heatmap of the crowd</div>
     </div>
@@ -255,17 +255,26 @@ async function drawPath() {
 
     const canvas = document.getElementById("path-canvas");
     const ctx = canvas.getContext("2d");
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
+    
+    // Get the actual rendered size of the canvas
+    const rect = canvas.getBoundingClientRect();
+    const canvasWidth = rect.width;
+    const canvasHeight = rect.height;
+    
+    // Set canvas internal resolution to match display size
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
     
     // Clear canvas
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     
-    // Calculate cell size (15x15 grid)
-    const cellWidth = canvasWidth / 15;
-    const cellHeight = canvasHeight / 15;
+    // The grid has 15 cells, but the circles are positioned with gaps
+    // We need to calculate the actual center positions of the circles
+    const gridSize = 15;
+    const cellWidth = canvasWidth / gridSize;
+    const cellHeight = canvasHeight / gridSize;
     
-    // Draw the path
+    // Draw the path line
     ctx.strokeStyle = "#1976d2";
     ctx.lineWidth = 2;
     ctx.lineCap = "round";
@@ -275,9 +284,9 @@ async function drawPath() {
     
     data.path.forEach((point, index) => {
       const [row, col] = point;
-      // Calculate center of each cell
-      const x = (col + 0.5) * cellWidth;
-      const y = (row + 0.5) * cellHeight;
+      // Calculate exact center of each cell to match blob positions
+      const x = col * cellWidth + cellWidth / 2;
+      const y = row * cellHeight + cellHeight / 2;
       
       if (index === 0) {
         ctx.moveTo(x, y);
@@ -291,25 +300,31 @@ async function drawPath() {
     // Draw start point (green circle)
     if (data.path.length > 0) {
       const [startRow, startCol] = data.path[0];
-      const startX = (startCol + 0.5) * cellWidth;
-      const startY = (startRow + 0.5) * cellHeight;
+      const startX = startCol * cellWidth + cellWidth / 2;
+      const startY = startRow * cellHeight + cellHeight / 2;
       
       ctx.fillStyle = "#66bb6a";
+      ctx.strokeStyle = "#4caf50";
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(startX, startY, 3, 0, Math.PI * 2);
+      ctx.arc(startX, startY, 3.5, 0, Math.PI * 2);
       ctx.fill();
+      ctx.stroke();
     }
     
     // Draw end point (red circle)
     if (data.path.length > 1) {
       const [endRow, endCol] = data.path[data.path.length - 1];
-      const endX = (endCol + 0.5) * cellWidth;
-      const endY = (endRow + 0.5) * cellHeight;
+      const endX = endCol * cellWidth + cellWidth / 2;
+      const endY = endRow * cellHeight + cellHeight / 2;
       
       ctx.fillStyle = "#ff5252";
+      ctx.strokeStyle = "#f44336";
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(endX, endY, 3, 0, Math.PI * 2);
+      ctx.arc(endX, endY, 3.5, 0, Math.PI * 2);
       ctx.fill();
+      ctx.stroke();
     }
     
     console.log("Path drawn:", data.path);
@@ -458,5 +473,3 @@ function handleTap() {
 </script>
 </body>
 </html>
-
-
