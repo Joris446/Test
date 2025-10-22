@@ -109,8 +109,8 @@ body {
 
 #crowd-blobs {
   display: grid;
-  grid-template-columns: repeat(15, 1fr);
-  grid-template-rows: repeat(15, 1fr);
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(10, 1fr);
   gap: 0.5px;
   justify-items: center;
   align-items: center;
@@ -259,7 +259,7 @@ async function drawPath() {
 
   if (!pathData || pathData.length === 0) return;
 
-  const gridSize = 15;
+  const gridSize = 10;
   const cellWidth = canvasWidth / gridSize;
   const cellHeight = canvasHeight / gridSize;
 
@@ -319,8 +319,8 @@ async function generateHeatmap() {
     const matrix = dataMatrix.matrix;
     const c = document.getElementById("crowd-blobs");
     c.innerHTML = "";
-    for (let r = 0; r < 15; r++) {
-      for (let col = 0; col < 15; col++) {
+    for (let r = 0; r < 10; r++) {
+      for (let col = 0; col < 10; col++) {
         const b = document.createElement("div");
         b.className = "crowd-blob";
         const val = matrix[r][col];
@@ -459,6 +459,7 @@ function handleTap() {
 
 </body>
 </html>
+
 
 
 
